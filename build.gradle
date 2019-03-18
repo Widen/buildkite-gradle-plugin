@@ -54,4 +54,14 @@ tasks.create('pipeline', UploadPipeline) {
         artifactPath 'src/build/reports/integTest/**/*'
         dockerComposeContainer 'gradle'
     }
+
+    waitStep()
+
+    commandStep {
+        label ':maven: Publish JARs'
+        command './gradlew publish --continue ${GRADLE_SWITCHES}'
+        branch '*.*.*'
+        agentQueue 'builder'
+        dockerComposeContainer 'gradle'
+    }
 }
