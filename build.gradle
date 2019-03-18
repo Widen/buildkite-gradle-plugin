@@ -1,0 +1,57 @@
+import com.widen.plugins.*
+
+plugins {
+    id 'com.widen.versioning' version '0.4.1'
+    id 'groovy'
+    id 'maven-publish'
+    id 'java-gradle-plugin'
+}
+
+group = 'widen'
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+}
+
+jar {
+    from "${rootProject.rootDir}/buildSrc/build/classes/groovy/main"
+}
+
+gradlePlugin {
+    plugins {
+        buildkitePlugin {
+            id = 'widen.buildkite'
+            implementationClass = BuildkitePlugin.name
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            url 'https://widen.jfrog.io/widen/libs-releases-local'
+            credentials {
+                username System.env.JFROG_USER ?: USER
+                password System.env.JFROG_PASS ?: PASSWORD
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            artifact jar
+        }
+    }
+}
+
+tasks.create('pipeline', UploadPipeline) {
+    replace true
+
+    commandStep {
+        label ':junit: Unit tests'
+        command './gradlew check --continue ${GRADLE_SWITCHES}'
+        agentQueue 'builder'
+        artifactPath 'src/build/reports/integTest/**/*'
+        dockerComposeContainer 'gradle'
+    }
+}
