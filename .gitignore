@@ -2,7 +2,7 @@
 /.idea/libraries
 /.idea/workspace.xml
 /.idea/gradle.xml
-/.gradle
+.gradle
 /app/config/local.properties
 /app/web/WEB-INF/classes/
 /.bksh
