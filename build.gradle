@@ -43,7 +43,7 @@ publishing {
 }
 
 tasks.create('pipeline', UploadPipeline) {
-    replace true
+    replace = true
 
     commandStep {
         label ':junit: Unit tests'
@@ -57,7 +57,7 @@ tasks.create('pipeline', UploadPipeline) {
 
     commandStep {
         label ':maven: Publish JARs'
-        command './gradlew publish --continue ${GRADLE_SWITCHES}'
+        command './gradlew publish --continue $${GRADLE_SWITCHES}'
         branch '*.*.*'
         agentQueue 'builder'
         dockerComposeContainer 'gradle'
