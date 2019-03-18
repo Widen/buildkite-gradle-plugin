@@ -50,7 +50,7 @@ class UploadPipeline extends DefaultTask {
 
     @TaskAction
     void upload() {
-        if (System.env.BUILDKITE) {
+        if (System.env.BUILDKITE || System.env.CI) {
             def cmd = ['buildkite-agent', 'pipeline', 'upload', '--no-interpolation']
 
             if (replace) {
