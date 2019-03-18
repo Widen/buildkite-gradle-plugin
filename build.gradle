@@ -32,8 +32,8 @@ publishing {
         maven {
             url '***REMOVED***'
             credentials {
-                username System.env.JFROG_USER ?: USER
-                password System.env.JFROG_PASS ?: PASSWORD
+                username = System.env.JFROG_USER ?: USER
+                password = System.env.JFROG_PASS ?: PASSWORD
             }
             authentication {
                 basic(BasicAuthentication)
