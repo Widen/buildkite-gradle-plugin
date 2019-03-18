@@ -40,11 +40,6 @@ publishing {
             }
         }
     }
-    publications {
-        maven(MavenPublication) {
-            artifact jar
-        }
-    }
 }
 
 tasks.create('pipeline', UploadPipeline) {
