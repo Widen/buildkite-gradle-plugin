@@ -7,6 +7,7 @@ import org.gradle.api.tasks.TaskAction
 import java.nio.file.Files
 
 class UploadPipeline extends DefaultTask {
+    private boolean interpolation = true
     private boolean replace = false
     private steps = []
 
@@ -51,7 +52,11 @@ class UploadPipeline extends DefaultTask {
     @TaskAction
     void upload() {
         if (System.env.BUILDKITE || System.env.CI) {
-            def cmd = ['buildkite-agent', 'pipeline', 'upload', '--no-interpolation']
+            def cmd = ['buildkite-agent', 'pipeline', 'upload']
+
+            if (!interpolation) {
+                cmd << '--no-interpolation'
+            }
 
             if (replace) {
                 cmd << '--replace'
