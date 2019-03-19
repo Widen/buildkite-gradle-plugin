@@ -58,7 +58,7 @@ tasks.create('pipeline', UploadPipeline) {
     commandStep {
         label ':maven: Publish JARs'
         command './gradlew publish --continue $${GRADLE_SWITCHES}'
-        branch '*.*.*'
+        branches '*.*.*'
         agentQueue 'builder'
         dockerComposeContainer 'gradle'
     }
