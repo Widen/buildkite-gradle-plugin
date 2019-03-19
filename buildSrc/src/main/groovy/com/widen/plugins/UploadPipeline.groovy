@@ -126,10 +126,10 @@ class UploadPipeline extends DefaultTask {
         /**
          * The branch pattern defining which branches will include this step in their builds.
          *
-         * @param branch
+         * @param branches The branches to match.
          */
-        void branch(String branch) {
-            model.branches = branch
+        void branches(String... branches) {
+            model.branches = branches.join(' ')
         }
     }
 
