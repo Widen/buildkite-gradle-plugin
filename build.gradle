@@ -50,7 +50,9 @@ tasks.create('pipeline', UploadPipeline) {
         command './gradlew check --continue ${GRADLE_SWITCHES}'
         agentQueue 'builder'
         artifactPath 'src/build/reports/integTest/**/*'
-        dockerComposeContainer 'gradle'
+        dockerCompose {
+            run 'gradle'
+        }
     }
 
     waitStep()
@@ -60,6 +62,8 @@ tasks.create('pipeline', UploadPipeline) {
         command './gradlew publish --continue $${GRADLE_SWITCHES}'
         branches '*.*.*'
         agentQueue 'builder'
-        dockerComposeContainer 'gradle'
+        dockerCompose {
+            run 'gradle'
+        }
     }
 }
