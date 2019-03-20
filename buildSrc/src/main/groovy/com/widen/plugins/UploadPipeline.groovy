@@ -10,6 +10,9 @@ import java.nio.file.Files
  * A Gradle task that allows you to define a Buildkite pipeline dynamically and then upload it during a build.
  */
 class UploadPipeline extends DefaultTask {
+    private static final String DOCKER_PLUGIN_VERSION = 'v1.1.1'
+    private static final String DOCKER_COMPOSE_PLUGIN_VERSION = 'v2.3.0'
+
     private final List steps = []
 
     /**
@@ -30,7 +33,7 @@ class UploadPipeline extends DefaultTask {
     void commandStep(@DelegatesTo(CommandStep) Closure closure) {
         def step = new CommandStep()
         closure = closure.rehydrate(step, this, this)
-        closure.resolveStrategy = Closure.OWNER_FIRST
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure()
         steps << step.model
     }
@@ -175,24 +178,125 @@ class UploadPipeline extends DefaultTask {
             model.skip = reason
         }
 
+        void automaticRetry(@DelegatesTo(AutomaticRetry) Closure closure) {
+            def config = new AutomaticRetry()
+            closure = closure.rehydrate(config, this, this)
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
+            closure()
+            model.get('retry', [:]).automatic = config.model
+        }
+
         void plugin(String name, Object config) {
             model.get('plugins', []) << [
                 (name): config
             ]
         }
 
-        void dockerComposeContainer(String name) {
-            def composeFiles = [
-                'docker-compose.yml',
-                'docker-compose.buildkite.yml',
-            ].findAll {
-                Files.exists(project.rootDir.toPath().resolve(it))
+        void plugin(String name, String version, Object config) {
+            plugin("$name#$version", config)
+        }
+
+        void docker(@DelegatesTo(Docker) Closure closure) {
+            def config = new Docker()
+            closure = closure.rehydrate(config, this, this)
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
+            closure()
+            plugin('docker', DOCKER_PLUGIN_VERSION, config.model)
+        }
+
+        void dockerCompose(@DelegatesTo(DockerCompose) Closure closure) {
+            def config = new DockerCompose()
+
+            // Pre-populate some config files.
+            ['docker-compose.yml', 'docker-compose.buildkite.yml'].each {
+                if (Files.exists(project.rootDir.toPath().resolve(it))) {
+                    config.composeFile(it)
+                }
             }
 
-            plugin 'docker-compose#v2.3.0', [
-                run: name,
-                config: composeFiles
-            ]
+            closure = closure.rehydrate(config, this, this)
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
+            closure()
+
+            plugin('docker-compose', DOCKER_COMPOSE_PLUGIN_VERSION, config.model)
+        }
+
+        class AutomaticRetry {
+            protected Object model = true
+
+            void exitStatus(Integer exitStatus) {
+                if (!(model instanceof Map)) {
+                    model = [:]
+                }
+                model['exit_status'] = exitStatus
+            }
+
+            void limit(Integer limit) {
+                if (!(model instanceof Map)) {
+                    model = [:]
+                }
+                model['limit'] = limit
+            }
+        }
+    }
+
+    class Docker {
+        protected final Map model = [:]
+
+        void image(String image) {
+            model.image = image
+        }
+
+        void alwaysPull() {
+            alwaysPull(true)
+        }
+
+        void alwaysPull(boolean pull) {
+            model['always-pull'] = pull
+        }
+
+        void environment(String name) {
+            model.get('environment', []) << name
+        }
+
+        void environment(String name, String value) {
+            model.get('environment', []) << "$name=$value"
+        }
+
+        void environment(Map<String, String> variables) {
+            variables.each { name, value ->
+                environment(name, value)
+            }
+        }
+    }
+
+    class DockerCompose {
+        protected final Map model = [:]
+
+        void run(String service) {
+            model.run = service
+        }
+
+        void build(String... services) {
+            model.build = services
+        }
+
+        void environment(String name) {
+            model.get('env', []) << name
+        }
+
+        void environment(String name, String value) {
+            model.get('env', []) << "$name=$value"
+        }
+
+        void environment(Map<String, String> variables) {
+            variables.each { name, value ->
+                environment(name, value)
+            }
+        }
+
+        void composeFile(String composeFile) {
+            model.get('config', []) << composeFile
         }
     }
 }
