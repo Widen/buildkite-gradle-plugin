@@ -10,7 +10,7 @@ First add the plugin to your project:
 
 ```groovy
 plugins {
-    id 'widen.buildkite' version '0.1.3'
+    id 'widen.buildkite' version '0.1.7'
 }
 ```
 
@@ -41,7 +41,9 @@ tasks.create('deployStagePipeline', com.widen.plugins.UploadPipeline) {
             command "./gradlew app-app:integrationTest -Dapp.endpoint=http://app.${region}.widen-stage.com --continue \${GRADLE_SWITCHES}"
             branch 'master'
             agentQueue 'integ-stage', region
-            dockerComposeContainer 'gradle'
+            dockerCompose {
+                run 'gradle'
+            }
         }
     }
 }
