@@ -412,7 +412,7 @@ class UploadPipeline extends DefaultTask {
          * The names of services to build.
          */
         void build(String... services) {
-            model.get('build', []) << services
+            model.get('build', []).addAll(services)
         }
 
         /**
