@@ -14,6 +14,7 @@ class UploadPipeline extends DefaultTask {
     private static final String DOCKER_PLUGIN_VERSION = 'v1.1.1'
     private static final String DOCKER_COMPOSE_PLUGIN_VERSION = 'v2.3.0'
 
+    private final Map<String, String> env = [:]
     private final List steps = []
 
     /**
@@ -25,6 +26,20 @@ class UploadPipeline extends DefaultTask {
      * Replace the rest of the existing pipeline with the steps uploaded. Jobs that are already running are not removed.
      */
     boolean replace = false
+
+    /**
+     * Add an environment variable to apply to all steps.
+     */
+    void environment(String name, String value) {
+        env.put(name, value)
+    }
+
+    /**
+     * Add a map of environment variables to apply to all steps.
+     */
+    void environment(Map<String, String> variables) {
+        env.putAll(variables)
+    }
 
     /**
      * Add a <a href="https://buildkite.com/docs/pipelines/command-step">command step</a> to the pipeline.
@@ -75,6 +90,7 @@ class UploadPipeline extends DefaultTask {
      */
     String toJson() {
         return JsonOutput.toJson([
+            env: env,
             steps: steps
         ])
     }
