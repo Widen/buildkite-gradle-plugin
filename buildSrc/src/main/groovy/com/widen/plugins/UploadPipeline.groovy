@@ -11,8 +11,8 @@ import java.time.Duration
  * A Gradle task that allows you to define a Buildkite pipeline dynamically and then upload it during a build.
  */
 class UploadPipeline extends DefaultTask {
-    private static final String DOCKER_PLUGIN_VERSION = 'v1.1.1'
-    private static final String DOCKER_COMPOSE_PLUGIN_VERSION = 'v2.3.0'
+    private static final String DOCKER_PLUGIN_VERSION = 'v3.2.0'
+    private static final String DOCKER_COMPOSE_PLUGIN_VERSION = 'v3.0.3'
 
     private final Map<String, String> env = [:]
     private final List steps = []
