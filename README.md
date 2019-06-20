@@ -23,7 +23,7 @@ tasks.create('deployStagePipeline', com.widen.plugins.UploadPipeline) {
     regions.each { region ->
         commandStep {
             label ":rocket: Deploy app to stage $region"
-            command "./bksh deploy-helm-2 -r app-stage -f app-stage-${region}.yaml -g \${DOCKER_TAG} -k ${k8s('stage', region)} -v 4.2.3"
+            command "./bksh deploy-helm-2 -r app-stage -f app-stage-${region}.yaml -g \${DOCKER_TAG} -k k8s2-stage-$region -v 4.2.3"
             agentQueue 'deploy-stage', region
         }
         commandStep {

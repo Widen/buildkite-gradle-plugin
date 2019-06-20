@@ -74,16 +74,6 @@ class UploadPipeline extends DefaultTask {
     }
 
     /**
-     * Helper method to return the correct Widen Kubernetes cluster endpoint for a given environment and region.
-     */
-    String k8s(String environment, String region) {
-        if (environment == 'stage' && region == 'us-east-1') {
-            return '***REMOVED***'
-        }
-        return "***REMOVED***"
-    }
-
-    /**
      * Get the JSON representation of the pipeline.
      *
      * @return A JSON string.
