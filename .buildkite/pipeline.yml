@@ -1,6 +1,6 @@
 steps:
   - label: ":pipeline:"
-    command: "./gradlew pipeline"
+    command: "./gradlew uploadPipeline"
     agents:
       queue: builder
     plugins:
