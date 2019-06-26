@@ -1,4 +1,4 @@
-package com.widen.plugins
+package com.widen.plugins.buildkite
 
 /**
  * Common methods for objects that can receive environment variables.

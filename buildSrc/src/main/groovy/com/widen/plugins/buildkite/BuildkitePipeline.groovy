@@ -1,4 +1,4 @@
-package com.widen.plugins
+package com.widen.plugins.buildkite
 
 
 import groovy.json.JsonOutput
