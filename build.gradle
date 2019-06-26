@@ -1,4 +1,4 @@
-import com.widen.plugins.BuildkitePlugin
+import com.widen.plugins.buildkite.BuildkitePlugin
 
 plugins {
     id 'com.widen.versioning' version '0.4.1'
