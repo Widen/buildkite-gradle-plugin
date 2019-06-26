@@ -384,19 +384,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
 
             command "./gradlew $task ${systemPropertyArgs.join(' ')} \${GRADLE_SWITCHES}"
 
-            docker {
-                image 'quay.io/widen/builder-gradle:2.0.0'
-                propagateEnvironment()
-                environment 'WIDEN_DOCKER_TAG'
-                volumes([
-                    "./": "/work",
-                    "~/.aws": "/root/.aws",
-                    "~/.docker": "/root/.docker",
-                    "~/.gradle": "/root/.gradle",
-                    "/usr/bin/buildkite-agent": "/usr/bin/buildkite-agent",
-                    "/usr/bin/docker": "/usr/bin/docker",
-                    "/var/run/docker.sock": "/var/run/docker.sock",
-                ])
+            dockerCompose {
+                run 'gradle'
             }
         }
 
