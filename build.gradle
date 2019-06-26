@@ -1,4 +1,4 @@
-import com.widen.plugins.*
+import com.widen.plugins.BuildkitePlugin
 
 plugins {
     id 'com.widen.versioning' version '0.4.1'
@@ -6,6 +6,8 @@ plugins {
     id 'maven-publish'
     id 'java-gradle-plugin'
 }
+
+apply plugin: BuildkitePlugin
 
 group = 'widen'
 
@@ -42,28 +44,58 @@ publishing {
     }
 }
 
-tasks.create('pipeline', UploadPipeline) {
-    replace = true
+// This serves as a live example of how to use the plugin.
+buildkite {
+    // Configure the "default" pipeline.
+    pipeline {
+        replace = true
 
-    commandStep {
-        label ':junit: Unit tests'
-        command './gradlew check --continue ${GRADLE_SWITCHES}'
-        agentQueue 'builder'
-        artifactPath 'src/build/reports/integTest/**/*'
-        dockerCompose {
-            run 'gradle'
+        // Add a command step that invokes another Gradle task.
+        commandStep {
+            // Most methods mirror the names used in a Buildkite YAML file.
+            label ':junit: Unit tests'
+            command './gradlew check --continue ${GRADLE_SWITCHES}'
+            artifactPath 'src/build/reports/integTest/**/*'
+
+            // Specify which Buildkite agents should pick up this work.
+            agentQueue 'builder'
+
+            // Environment variables can be set in multiple ways.
+            environment 'FOO', 'a'
+            environment BAR: 42, BAZ: 43
+            environment {
+                HELLO = 'world'
+            }
+
+            // Common Buildkite plugins are also part of the DSL.
+            dockerCompose {
+                run 'gradle'
+            }
+        }
+
+        // Some step methods are just conveniences that generate a more complex step from simple configuration.
+        publishDocsStep {
+            appName = 'Gradle Buildkite Plugin'
+        }
+
+        waitStep()
+
+        gradleStep {
+            label ':maven: Publish JARs'
+            task 'publish --continue'
+            branches '*.*.*'
+            // Gradle steps can set system properties.
+            systemProperty 'app.foo', true
+            // Note that many fields are optional.
+        }
+
+        // You can also set environment variables that apply to the whole pipeline.
+        environment {
+            FOO = 'bar'
         }
     }
 
-    waitStep()
-
-    commandStep {
-        label ':maven: Publish JARs'
-        command './gradlew publish --continue $${GRADLE_SWITCHES}'
-        branches '*.*.*'
-        agentQueue 'builder'
-        dockerCompose {
-            run 'gradle'
-        }
-    }
+    // There are also a few other things we can do besides define pipelines. Like set which versions of Buildkite
+    // plugins we want to use.
+    pluginVersion 'docker-compose', 'v3.0.3'
 }
