@@ -1,8 +1,0 @@
-steps:
-  - label: ":pipeline:"
-    command: "./gradlew uploadPipeline"
-    agents:
-      queue: builder
-    plugins:
-      docker-compose#v3.0.3:
-        run: gradle
