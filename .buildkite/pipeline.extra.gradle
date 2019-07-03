@@ -1,0 +1,5 @@
+buildkite.pipeline('extra') {
+    environment {
+        FOO = 'extra'
+    }
+}

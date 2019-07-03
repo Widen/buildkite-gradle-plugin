@@ -22,7 +22,16 @@ class BuildkitePlugin implements Plugin<Project> {
             }
         }
 
+        // Run anything that needs to be done after plugin configuration has been evaluated.
         project.afterEvaluate {
+            if (extension.includeScripts) {
+                project.fileTree(project.rootDir) {
+                    include '.buildkite/pipeline*.gradle'
+                }.each {
+                    project.apply from: it
+                }
+            }
+
             extension.pipelines.each { name, config ->
                 def taskName = name == 'default' ? 'uploadPipeline' : "upload${name}Pipeline"
 
@@ -44,6 +53,11 @@ class BuildkitePlugin implements Plugin<Project> {
     static class Extension {
         protected final Map<String, Closure<BuildkitePipeline>> pipelines = [:]
         protected Config config
+
+        /**
+         * Whether detected pipeline script files should be included automatically.
+         */
+        boolean includeScripts = true
 
         /**
          * Specify the version of a Buildkite plugin that should be used inside pipelines if no version is specified.
