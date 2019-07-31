@@ -22,9 +22,11 @@ trait ConfigurableEnvironment {
      * Set environment variables using a configure block.
      */
     void environment(@DelegatesTo(Map) Closure closure) {
-        [:].with {
-            with(closure)
-            environment(it)
-        }
+        def map = [:]
+        closure = (Closure) closure.clone()
+        closure.delegate = map
+        closure.resolveStrategy = Closure.OWNER_FIRST
+        closure()
+        environment(map)
     }
 }
