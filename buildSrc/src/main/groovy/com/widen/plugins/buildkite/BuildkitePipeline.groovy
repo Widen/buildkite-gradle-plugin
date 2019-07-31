@@ -292,6 +292,20 @@ class BuildkitePipeline implements ConfigurableEnvironment {
                     volume(source, target)
                 }
             }
+
+            /**
+             * Override the Docker container entrypoint.
+             */
+            void entrypoint(String entrypoint) {
+                model.entrypoint = entrypoint
+            }
+
+            /**
+             * Set the shell to use for the command.
+             */
+            void shell(String... args) {
+                model.shell = args
+            }
         }
 
         /**
