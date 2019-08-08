@@ -375,6 +375,20 @@ class BuildkitePipeline implements ConfigurableEnvironment {
             }
 
             /**
+             * Specify a Docker image to pull down to use as a layer cache for building the given service.
+             */
+            void cacheFrom(String service, String image) {
+                model.get('cache-from', []) << "$service:$image"
+            }
+
+            /**
+             * Specify a Docker image to pull down to use as a layer cache for building the given service.
+             */
+            void cacheFrom(String service, String image, String tag) {
+                cacheFrom(service, "$image:$tag")
+            }
+
+            /**
              * Add a Docker Compose configuration file to use.
              */
             void composeFile(String composeFile) {
