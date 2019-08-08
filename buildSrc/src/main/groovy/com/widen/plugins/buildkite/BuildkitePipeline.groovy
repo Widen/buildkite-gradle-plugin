@@ -347,6 +347,20 @@ class BuildkitePipeline implements ConfigurableEnvironment {
             }
 
             /**
+             * Push a built service to a repository. Multiple pushes are allowed in one step.
+             */
+            void push(String service, String image) {
+                model.get('push', []) << "$service:$image"
+            }
+
+            /**
+             * Push a built service to a repository. Multiple pushes are allowed in one step.
+             */
+            void push(String service, String image, String tag) {
+                push(service, "$image:$tag")
+            }
+
+            /**
              * The repository for pushing and pulling pre-built images.
              */
             void imageRepository(String repository) {
