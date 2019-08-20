@@ -1,6 +1,5 @@
 package com.widen.plugins.buildkite
 
-
 import groovy.json.JsonOutput
 
 import java.nio.file.Files
@@ -63,7 +62,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
     }
 
     /**
-     * Configuration for a Buildkite command step.
+     * A command step runs one or more shell commands on an agent.
      */
     class CommandStep extends Step implements ConfigurableEnvironment {
         // Set defaults.
@@ -496,15 +495,215 @@ class BuildkitePipeline implements ConfigurableEnvironment {
     }
 
     /**
-     * Get the JSON representation of the pipeline.
+     * Add a <a href="https://buildkite.com/docs/pipelines/block-step">block step</a> to the pipeline.
      *
-     * @return A JSON string.
+     * @param closure
      */
-    String toJson() {
-        return JsonOutput.toJson([
-            env: env,
-            steps: steps
-        ])
+    void blockStep(String label, @DelegatesTo(BlockStep) Closure closure = null) {
+        def step = new BlockStep()
+        step.label(label)
+        if (closure) {
+            step.with(closure)
+        }
+        steps << step.model
+    }
+
+    /**
+     * A block step is used to pause the execution of a build and wait on a team member to unblock it via the web or the API.
+     */
+    class BlockStep extends Step {
+        @Override
+        void label(String label) {
+            model.block = label
+        }
+
+        /**
+         * Sets an instructional message displayed in the dialog box when the unblock step is activated.
+         */
+        void prompt(String prompt) {
+            model.prompt = prompt
+        }
+
+        /**
+         * Add a text field to be filled out before unblocking the step.
+         *
+         * @param label The label of the field.
+         * @param key The meta-data key that stores the field's input (e.g. via the buildkite-agent meta-data command) The key may only contain alphanumeric
+         * characters, slashes or dashes.
+         */
+        void textField(String label, String key, @DelegatesTo(TextField) Closure closure = null) {
+            addField(new TextField(label, key), closure)
+        }
+
+        class TextField extends Field {
+            TextField(String label, String key) {
+                model.text = label
+                model.key = key
+            }
+        }
+
+        /**
+         * Add a select field to be filled out before unblocking the step.
+         *
+         * @param label The label of the field.
+         * @param key The meta-data key that stores the field's input (e.g. via the buildkite-agent meta-data command) The key may only contain alphanumeric
+         * characters, slashes or dashes.
+         */
+        void selectField(String label, String key, @DelegatesTo(SelectField) Closure closure = null) {
+            addField(new SelectField(label, key), closure)
+        }
+
+        class SelectField extends Field {
+            SelectField(String label, String key) {
+                model.select = label
+                model.key = key
+            }
+
+            /**
+             * A boolean value that defines whether multiple options may be selected. When multiple options are selected, they are delimited in the meta-data
+             * field by a line break (\n).
+             */
+            void multiple(boolean multiple = true) {
+                model.multiple = multiple
+            }
+
+            /**
+             * When multiple is enabled, set an array of values to select by default.
+             */
+            void defaultValues(String... values) {
+                model.default = values.toList()
+            }
+
+            /**
+             * Add a field option.
+             *
+             * @param label The text displayed for the option.
+             * @param value The value to be stored as meta-data (e.g. to be later retrieved via the buildkite-agent meta-data command).
+             */
+            void option(String label, String value) {
+                model.get('options', []) << [
+                    label: label,
+                    value: value,
+                ]
+            }
+        }
+
+        private void addField(Field field, Closure closure) {
+            if (closure) {
+                field.with(closure)
+            }
+            model.get('fields', []) << field.model
+        }
+
+        abstract class Field {
+            protected final Map model = [:]
+
+            /**
+             * Set the explanatory text that is shown after the label.
+             */
+            void hint(String hint) {
+                model.hint = hint
+            }
+
+            /**
+             * A boolean value that defines whether the field is required for form submission.
+             */
+            void required(boolean required = true) {
+                model.required = required
+            }
+
+            /**
+             * The value that is pre-filled or pre-selected.
+             */
+            void defaultValue(String value) {
+                model.default = value
+            }
+        }
+    }
+
+    /**
+     * Add a <a href="https://buildkite.com/docs/pipelines/trigger-step">trigger step</a> to the pipeline.
+     *
+     * @param trigger The slug of the pipeline to create a build. The pipeline slug must be lowercase.
+     * @param closure
+     */
+    void triggerStep(String trigger, @DelegatesTo(TriggerStep) Closure closure = null) {
+        def step = new TriggerStep(trigger)
+        if (closure) {
+            step.with(closure)
+        }
+        steps << step.model
+    }
+
+    /**
+     * A trigger step creates a build on another pipeline. You can use trigger steps to separate your test and deploy pipelines, or to create build
+     * dependencies between pipelines.
+     */
+    class TriggerStep extends Step {
+        TriggerStep(String trigger) {
+            model.trigger = trigger
+        }
+
+        /**
+         * If set to true the step will immediately continue, regardless of the success of the triggered build. If set to false the step will wait for the
+         * triggered build to complete and continue only if the triggered build passed.
+         */
+        void async(boolean async = true) {
+            model.async = async
+        }
+
+        /**
+         * Configure optional attributes for the triggered build.
+         */
+        void build(@DelegatesTo(Build) Closure closure) {
+            def build = new Build()
+            build.with(closure)
+        }
+
+        class Build implements ConfigurableEnvironment {
+            /**
+             * The message for the build. Supports emoji. Default: the label of the trigger step.
+             */
+            void message(String message) {
+                model.get('build', [:]).message = message
+            }
+
+            /**
+             * The commit hash for the build.
+             */
+            void commit(String commit) {
+                model.get('build', [:]).commit = commit
+            }
+
+            /**
+             * The branch for the build.
+             */
+            void branch(String branch) {
+                model.get('build', [:]).branch = branch
+            }
+
+            /**
+             * Set meta-data for the build.
+             */
+            void metadata(@DelegatesTo(Map) Closure closure) {
+                def map = [:]
+                closure = (Closure) closure.clone()
+                closure.delegate = map
+                closure.resolveStrategy = Closure.OWNER_FIRST
+                closure()
+
+                model.get('build', [:])
+                    .get('meta_data', [:])
+                    .putAll(map)
+            }
+
+            @Override
+            void environment(String name, Object value) {
+                model.get('build', [:])
+                    .get('env', [:])
+                    .put(name, value)
+            }
+        }
     }
 
     /**
@@ -526,5 +725,17 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         void branches(String... branches) {
             model.branches = branches.join(' ')
         }
+    }
+
+    /**
+     * Get the JSON representation of the pipeline.
+     *
+     * @return A JSON string.
+     */
+    String toJson() {
+        return JsonOutput.toJson([
+            env: env,
+            steps: steps
+        ])
     }
 }
