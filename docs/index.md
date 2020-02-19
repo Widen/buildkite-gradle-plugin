@@ -12,7 +12,7 @@ plugins {
 }
 ```
 
-Check out the [releases page](https://github.com/Widen/gradle-buildkite-plugin/releases) for a list of versions and the changelog for each. Now you are ready to start defining Buildkite pipelines using Groovy inside your `build.gradle`.
+Check out the [releases page](https://github.com/Widen/buildkite-gradle-plugin/releases) for a list of versions and the changelog for each. Now you are ready to start defining Buildkite pipelines using Groovy inside your `build.gradle`.
 
 ## Usage
  
