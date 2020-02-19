@@ -73,20 +73,24 @@ buildkite {
             }
         }
 
-        // Some step methods are just conveniences that generate a more complex step from simple configuration.
-        publishDocsStep {
-            appName = 'Gradle Buildkite Plugin'
+        commandStep {
+            label ':md: Publish docs'
+
+            // Custom plugins can also be used by name.
+            plugin 'Widen/docs-publisher#v1', {
+                title 'Buildkite Gradle Plugin'
+            }
         }
 
         waitStep()
 
-        gradleStep {
+        commandStep {
             label ':maven: Publish JARs'
-            task 'publish --continue'
+            command "./gradlew publish --continue \${GRADLE_SWITCHES}"
             branches '*.*.*'
-            // Gradle steps can set system properties.
-            systemProperty 'app.foo', true
-            // Note that many fields are optional.
+            dockerCompose {
+                run 'gradle'
+            }
         }
 
         // You can also set environment variables that apply to the whole pipeline.
@@ -97,6 +101,9 @@ buildkite {
 
     // You can also add additional pipelines with a name other than the default.
     pipeline 'secondary', {}
+
+    // The default agent queue for steps that do not specify one is "builder", but this can be changed here.
+    defaultAgentQueue 'builder'
 
     // You can also define pipelines in external script files inside your .buildkite directory matching the pattern 'buildkite*.gradle' and they will be
     // included automatically. This is true by default.
