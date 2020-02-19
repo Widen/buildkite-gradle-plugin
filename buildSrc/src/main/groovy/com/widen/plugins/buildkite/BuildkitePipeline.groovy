@@ -1,5 +1,6 @@
 package com.widen.plugins.buildkite
 
+import groovy.json.JsonBuilder
 import groovy.json.JsonOutput
 
 import java.nio.file.Files
@@ -55,7 +56,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
      *
      * @param closure
      */
-    void commandStep(@DelegatesTo(CommandStep) Closure closure) {
+    void commandStep(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = CommandStep) Closure closure) {
         def step = new CommandStep()
         step.with(closure)
         steps << step.model
@@ -67,7 +68,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
     class CommandStep extends Step implements ConfigurableEnvironment {
         // Set defaults.
         {
-            agentQueue 'builder'
+            agentQueue pluginConfig.defaultAgentQueue
         }
 
         /**
@@ -142,7 +143,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         /**
          * Retry this step automatically on failure.
          */
-        void automaticRetry(@DelegatesTo(AutomaticRetry) Closure closure) {
+        void automaticRetry(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = AutomaticRetry) Closure closure) {
             def config = new AutomaticRetry()
             config.with(closure)
             model.get('retry', [:]).automatic = config.model
@@ -201,9 +202,9 @@ class BuildkitePipeline implements ConfigurableEnvironment {
          * Add a Buildkite plugin to this step.
          *
          * @param name The plugin name.
-         * @param config An object that should be passed to the plugin as configuration.
+         * @param config An optional object that should be passed to the plugin as configuration.
          */
-        void plugin(String name, Object config) {
+        void plugin(String name, Object config = null) {
             plugin(name, pluginConfig.pluginVersions[name], config)
         }
 
@@ -211,10 +212,16 @@ class BuildkitePipeline implements ConfigurableEnvironment {
          * Add a Buildkite plugin to this step.
          *
          * @param name The plugin name.
-         * @param name The plugin version.
-         * @param config An object that should be passed to the plugin as configuration.
+         * @param version The plugin version.
+         * @param config An optional object that should be passed to the plugin as configuration, or a closure that constructs the configuration.
          */
-        void plugin(String name, String version, Object config) {
+        void plugin(String name, String version, Object config = null) {
+            if (config instanceof Closure) {
+                def builder = new JsonBuilder()
+                builder.call(config)
+                config = builder.content
+            }
+
             def key = version ? "$name#$version" : name
             model.get('plugins', []) << [
                 (key): config
@@ -224,7 +231,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         /**
          * Add the <a href="https://github.com/buildkite-plugins/docker-buildkite-plugin">Docker plugin</a> to this step.
          */
-        void docker(@DelegatesTo(Docker) Closure closure) {
+        void docker(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = Docker) Closure closure) {
             def config = new Docker()
             config.with(closure)
             plugin('docker', config.model)
@@ -310,7 +317,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         /**
          * Add the <a href="https://github.com/buildkite-plugins/docker-compose-buildkite-plugin">Docker Compose plugin</a> to this step.
          */
-        void dockerCompose(@DelegatesTo(DockerCompose) Closure closure) {
+        void dockerCompose(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = DockerCompose) Closure closure) {
             def config = new DockerCompose()
 
             // Pre-populate some config files.
@@ -411,95 +418,11 @@ class BuildkitePipeline implements ConfigurableEnvironment {
     }
 
     /**
-     * Add a command step that executes a Gradle task.
-     */
-    void gradleStep(@DelegatesTo(GradleStep) Closure closure) {
-        def step = new GradleStep()
-
-        step.with {
-            with(closure)
-
-            def systemPropertyArgs = systemProperties.collect {
-                "-D$it.key=$it.value"
-            }
-
-            command "./gradlew $task ${systemPropertyArgs.join(' ')} \${GRADLE_SWITCHES}"
-
-            dockerCompose {
-                run 'gradle'
-            }
-        }
-
-        steps << step.model
-    }
-
-    /**
-     * Configuration for a Gradle command step.
-     */
-    class GradleStep extends CommandStep {
-        protected String task
-        protected String[] args = []
-        protected Map<String, Object> systemProperties = [:]
-
-        /**
-         * The name of the Gradle task to execute.
-         */
-        void task(String name) {
-            this.task = name
-        }
-
-        /**
-         * Arguments to pass to Gradle.
-         */
-        void args(String... args) {
-            this.args = args
-        }
-
-        /**
-         * Set a Java system property for the Gradle task.
-         */
-        void systemProperty(String name, Object value) {
-            systemProperties[name] = value
-        }
-    }
-
-    /**
-     * Add a command step runs the <a href="***REMOVED***/docs-publisher/">Docs Publisher</a>.
-     */
-    void publishDocsStep(@DelegatesTo(PublishDocsStep) Closure closure) {
-        def step = new PublishDocsStep()
-        step.with(closure)
-
-        Objects.requireNonNull(step.appName, 'appName')
-
-        commandStep {
-            model.putAll(step.model)
-
-            command 'publish-docs'
-            docker {
-                image 'quay.io/widen/docs-publisher'
-                alwaysPull()
-                environment 'APP_NAME', step.appName
-                environment 'BUILDKITE_BRANCH'
-                environment 'BUILDKITE_REPO'
-            }
-        }
-    }
-
-    class PublishDocsStep extends Step {
-        String appName
-
-        {
-            label ':md: Publish Docs'
-        }
-    }
-
-    /**
      * Add a <a href="https://buildkite.com/docs/pipelines/block-step">block step</a> to the pipeline.
      *
      * @param closure
      */
-    void blockStep(String label, @DelegatesTo(BlockStep) Closure closure = null) {
+    void blockStep(String label, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = BlockStep) Closure closure = null) {
         def step = new BlockStep()
         step.label(label)
         if (closure) {
@@ -531,7 +454,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
          * @param key The meta-data key that stores the field's input (e.g. via the buildkite-agent meta-data command) The key may only contain alphanumeric
          * characters, slashes or dashes.
          */
-        void textField(String label, String key, @DelegatesTo(TextField) Closure closure = null) {
+        void textField(String label, String key, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = TextField) Closure closure = null) {
             addField(new TextField(label, key), closure)
         }
 
@@ -549,7 +472,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
          * @param key The meta-data key that stores the field's input (e.g. via the buildkite-agent meta-data command) The key may only contain alphanumeric
          * characters, slashes or dashes.
          */
-        void selectField(String label, String key, @DelegatesTo(SelectField) Closure closure = null) {
+        void selectField(String label, String key, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = SelectField) Closure closure = null) {
             addField(new SelectField(label, key), closure)
         }
 
@@ -627,7 +550,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
      * @param trigger The slug of the pipeline to create a build. The pipeline slug must be lowercase.
      * @param closure
      */
-    void triggerStep(String trigger, @DelegatesTo(TriggerStep) Closure closure = null) {
+    void triggerStep(String trigger, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = TriggerStep) Closure closure = null) {
         def step = new TriggerStep(trigger)
         if (closure) {
             step.with(closure)
@@ -655,7 +578,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         /**
          * Configure optional attributes for the triggered build.
          */
-        void build(@DelegatesTo(Build) Closure closure) {
+        void build(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = Build) Closure closure) {
             def build = new Build()
             build.with(closure)
         }
@@ -685,7 +608,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
             /**
              * Set meta-data for the build.
              */
-            void metadata(@DelegatesTo(Map) Closure closure) {
+            void metadata(@DelegatesTo(strategy = Closure.OWNER_FIRST, value = Map) Closure closure) {
                 def map = [:]
                 closure = (Closure) closure.clone()
                 closure.delegate = map
