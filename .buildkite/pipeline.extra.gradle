@@ -5,6 +5,20 @@ buildkite.pipeline('extra') {
 
     blockStep 'Wait a minute!'
 
+    commandStep {
+        plugin 'foobar', [
+            name: 'Baz',
+            list: [
+                [
+                    x: 1
+                ],
+                [
+                    x: 2
+                ]
+            ]
+        ]
+    }
+
     blockStep(':rocket: Release!') {
         prompt 'Fill out the details for this release'
         branches '*.*.*'

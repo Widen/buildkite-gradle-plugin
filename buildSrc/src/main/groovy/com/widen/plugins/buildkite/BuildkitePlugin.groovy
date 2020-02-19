@@ -43,10 +43,13 @@ class BuildkitePlugin implements Plugin<Project> {
     }
 
     static class Config {
+        String defaultAgentQueue = 'builder'
+
         final Map<String, String> pluginVersions = [
             docker: 'v3.2.0',
             'docker-compose': 'v3.0.3',
         ]
+
         File rootDir
     }
 
@@ -60,6 +63,13 @@ class BuildkitePlugin implements Plugin<Project> {
         boolean includeScripts = true
 
         /**
+         * Set the default agent queue name to use for steps that do not specify one.
+         */
+        void defaultAgentQueue(String queueName) {
+            config.defaultAgentQueue = queueName
+        }
+
+        /**
          * Specify the version of a Buildkite plugin that should be used inside pipelines if no version is specified.
          */
         void pluginVersion(String name, String version) {
@@ -69,14 +79,14 @@ class BuildkitePlugin implements Plugin<Project> {
         /**
          * Defines the default pipeline.
          */
-        void pipeline(@DelegatesTo(BuildkitePipeline) Closure closure) {
+        void pipeline(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = BuildkitePipeline) Closure closure) {
             pipeline('default', closure)
         }
 
         /**
          * Defines a named pipeline.
          */
-        void pipeline(String name, @DelegatesTo(BuildkitePipeline) Closure closure) {
+        void pipeline(String name, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = BuildkitePipeline) Closure closure) {
             pipelines[name] = {
                 def pipeline = new BuildkitePipeline(config)
                 pipeline.with(closure)
