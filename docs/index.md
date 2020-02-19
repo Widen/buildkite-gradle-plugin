@@ -1,4 +1,4 @@
-# Gradle Buildkite Plugin
+# Buildkite Gradle Plugin
 
 Provides a Gradle DSL for dynamically generating Buildkite pipelines.
 
