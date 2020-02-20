@@ -19,6 +19,13 @@ buildkite.pipeline('extra') {
         ]
     }
 
+    commandStep {
+        // Common Buildkite plugins are also part of the DSL.
+        dockerCompose {
+            run 'unit'
+        }
+    }
+
     blockStep(':rocket: Release!') {
         prompt 'Fill out the details for this release'
         branches '*.*.*'

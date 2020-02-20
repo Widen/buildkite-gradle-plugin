@@ -86,7 +86,10 @@ class BuildkitePlugin implements Plugin<Project> {
         /**
          * Defines a named pipeline.
          */
-        void pipeline(String name, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = BuildkitePipeline) Closure closure) {
+        void pipeline(
+            String name,
+            @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = BuildkitePipeline) Closure closure
+        ) {
             pipelines[name] = {
                 def pipeline = new BuildkitePipeline(config)
                 pipeline.with(closure)

@@ -1,15 +1,15 @@
 import com.widen.plugins.buildkite.BuildkitePlugin
 
 plugins {
-    id 'com.widen.versioning' version '0.4.1'
     id 'groovy'
-    id 'maven-publish'
     id 'java-gradle-plugin'
+    id 'com.gradle.plugin-publish' version '0.10.1'
+    id 'com.widen.versioning' version '0.4.1'
 }
 
 apply plugin: BuildkitePlugin
 
-group = 'widen'
+group = 'com.widen.oss'
 
 dependencies {
     compile gradleApi()
@@ -23,23 +23,22 @@ jar {
 gradlePlugin {
     plugins {
         buildkitePlugin {
-            id = 'widen.buildkite'
+            id = 'com.widen.buildkite'
             implementationClass = BuildkitePlugin.name
         }
     }
 }
 
-publishing {
-    repositories {
-        maven {
-            url '***REMOVED***'
-            credentials {
-                username = System.env.JFROG_USER ?: USER
-                password = System.env.JFROG_PASS ?: PASSWORD
-            }
-            authentication {
-                basic(BasicAuthentication)
-            }
+pluginBundle {
+    website = 'https://github.com/Widen/buildkite-gradle-plugin'
+    vcsUrl = 'https://github.com/Widen/buildkite-gradle-plugin'
+    description = 'A Gradle plugin that provides a DSL for dynamically generating Buildkite pipelines.'
+    tags = ['buildkite']
+
+    plugins {
+        buildkitePlugin {
+            id = 'com.widen.buildkite'
+            displayName = 'Widen Buildkite Gradle plugin'
         }
     }
 }
@@ -54,7 +53,6 @@ buildkite {
         commandStep {
             // Most methods mirror the names used in a Buildkite YAML file.
             label ':junit: Unit tests'
-            command './gradlew check --continue ${GRADLE_SWITCHES}'
             artifactPath 'src/build/reports/integTest/**/*'
 
             // Specify which Buildkite agents should pick up this work.
@@ -67,29 +65,20 @@ buildkite {
                 HELLO = 'world'
             }
 
-            // Common Buildkite plugins are also part of the DSL.
-            dockerCompose {
-                run 'gradle'
-            }
-        }
-
-        commandStep {
-            label ':md: Publish docs'
-
-            // Custom plugins can also be used by name.
-            plugin 'Widen/docs-publisher#v1', {
-                title 'Buildkite Gradle Plugin'
+            plugin 'Widen/gradle#v1', {
+                tasks 'check'
             }
         }
 
         waitStep()
 
         commandStep {
-            label ':maven: Publish JARs'
-            command "./gradlew publish --continue \${GRADLE_SWITCHES}"
+            label ':gradle: Publish plugin'
             branches '*.*.*'
-            dockerCompose {
-                run 'gradle'
+
+            // Custom plugins can also be used by name.
+            plugin 'Widen/gradle#v1', {
+                tasks 'publishPlugins'
             }
         }
 
@@ -110,6 +99,6 @@ buildkite {
     includeScripts = true
 
     // There are also a few other things we can do besides define pipelines. Like set which versions of Buildkite
-    // plugins we want to use.
+    // plugins we want to use by default.
     pluginVersion 'docker-compose', 'v3.0.3'
 }

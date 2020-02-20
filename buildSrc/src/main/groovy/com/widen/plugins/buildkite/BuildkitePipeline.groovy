@@ -112,8 +112,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         }
 
         /**
-         * The maximum number of jobs created from this step that are allowed to run at the same time. If you use this attribute, you must also
-         * define a label for it with the concurrency_group attribute.
+         * The maximum number of jobs created from this step that are allowed to run at the same time. If you use
+         * this attribute, you must also define a label for it with the concurrency_group attribute.
          *
          * @param group A unique name for this concurrency group.
          * @param concurrency The number of max concurrent jobs.
@@ -191,8 +191,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         }
 
         /**
-         * The amount of time a job created from this step is allowed to run. If the job does not finish within this limit, it will be automatically cancelled
-         * and the build will fail.
+         * The amount of time a job created from this step is allowed to run. If the job does not finish within this
+         * limit, it will be automatically cancelled and the build will fail.
          */
         void timeout(Duration timeout) {
             model.timeout_in_minutes = Math.max(timeout.toMinutes(), 1)
@@ -201,35 +201,33 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         /**
          * Add a Buildkite plugin to this step.
          *
-         * @param name The plugin name.
-         * @param config An optional object that should be passed to the plugin as configuration.
+         * @param name The plugin name or URL and version.
+         * @param config An optional object that should be passed to the plugin as configuration, or a closure that
+         * constructs the configuration.
+         *
+         * See <a href="https://buildkite.com/docs/pipelines/plugins#plugin-sources">plugin sources</a> for accepted
+         * syntax for the plugin name.
          */
         void plugin(String name, Object config = null) {
-            plugin(name, pluginConfig.pluginVersions[name], config)
-        }
-
-        /**
-         * Add a Buildkite plugin to this step.
-         *
-         * @param name The plugin name.
-         * @param version The plugin version.
-         * @param config An optional object that should be passed to the plugin as configuration, or a closure that constructs the configuration.
-         */
-        void plugin(String name, String version, Object config = null) {
             if (config instanceof Closure) {
                 def builder = new JsonBuilder()
                 builder.call(config)
                 config = builder.content
             }
 
-            def key = version ? "$name#$version" : name
+            // If no version is given and a default version is defined, set it.
+            if (!name.contains("#") && pluginConfig.pluginVersions.containsKey(name)) {
+                name += "#${pluginConfig.pluginVersions[name]}"
+            }
+
             model.get('plugins', []) << [
-                (key): config
+                (name): config
             ]
         }
 
         /**
-         * Add the <a href="https://github.com/buildkite-plugins/docker-buildkite-plugin">Docker plugin</a> to this step.
+         * Add the <a href="https://github.com/buildkite-plugins/docker-buildkite-plugin">Docker plugin</a> to this
+         * step.
          */
         void docker(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = Docker) Closure closure) {
             def config = new Docker()
@@ -315,7 +313,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         }
 
         /**
-         * Add the <a href="https://github.com/buildkite-plugins/docker-compose-buildkite-plugin">Docker Compose plugin</a> to this step.
+         * Add the <a href="https://github.com/buildkite-plugins/docker-compose-buildkite-plugin">Docker Compose
+         * plugin</a> to this step.
          */
         void dockerCompose(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = DockerCompose) Closure closure) {
             def config = new DockerCompose()
@@ -422,7 +421,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
      *
      * @param closure
      */
-    void blockStep(String label, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = BlockStep) Closure closure = null) {
+    void blockStep(String label, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = BlockStep) Closure closure =
+        null) {
         def step = new BlockStep()
         step.label(label)
         if (closure) {
@@ -432,7 +432,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
     }
 
     /**
-     * A block step is used to pause the execution of a build and wait on a team member to unblock it via the web or the API.
+     * A block step is used to pause the execution of a build and wait on a team member to unblock it via the web or
+     * the API.
      */
     class BlockStep extends Step {
         @Override
@@ -451,10 +452,11 @@ class BuildkitePipeline implements ConfigurableEnvironment {
          * Add a text field to be filled out before unblocking the step.
          *
          * @param label The label of the field.
-         * @param key The meta-data key that stores the field's input (e.g. via the buildkite-agent meta-data command) The key may only contain alphanumeric
-         * characters, slashes or dashes.
+         * @param key The meta-data key that stores the field's input (e.g. via the buildkite-agent meta-data
+         * command) The key may only contain alphanumeric characters, slashes or dashes.
          */
-        void textField(String label, String key, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = TextField) Closure closure = null) {
+        void textField(String label, String key, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = TextField)
+            Closure closure = null) {
             addField(new TextField(label, key), closure)
         }
 
@@ -469,10 +471,11 @@ class BuildkitePipeline implements ConfigurableEnvironment {
          * Add a select field to be filled out before unblocking the step.
          *
          * @param label The label of the field.
-         * @param key The meta-data key that stores the field's input (e.g. via the buildkite-agent meta-data command) The key may only contain alphanumeric
-         * characters, slashes or dashes.
+         * @param key The meta-data key that stores the field's input (e.g. via the buildkite-agent meta-data
+         * command) The key may only contain alphanumeric characters, slashes or dashes.
          */
-        void selectField(String label, String key, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = SelectField) Closure closure = null) {
+        void selectField(String label, String key, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value =
+            SelectField) Closure closure = null) {
             addField(new SelectField(label, key), closure)
         }
 
@@ -483,8 +486,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
             }
 
             /**
-             * A boolean value that defines whether multiple options may be selected. When multiple options are selected, they are delimited in the meta-data
-             * field by a line break (\n).
+             * A boolean value that defines whether multiple options may be selected. When multiple options are
+             * selected, they are delimited in the meta-data field by a line break (\n).
              */
             void multiple(boolean multiple = true) {
                 model.multiple = multiple
@@ -501,7 +504,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
              * Add a field option.
              *
              * @param label The text displayed for the option.
-             * @param value The value to be stored as meta-data (e.g. to be later retrieved via the buildkite-agent meta-data command).
+             * @param value The value to be stored as meta-data (e.g. to be later retrieved via the buildkite-agent
+             * meta-data command).
              */
             void option(String label, String value) {
                 model.get('options', []) << [
@@ -550,7 +554,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
      * @param trigger The slug of the pipeline to create a build. The pipeline slug must be lowercase.
      * @param closure
      */
-    void triggerStep(String trigger, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = TriggerStep) Closure closure = null) {
+    void triggerStep(String trigger, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = TriggerStep) Closure
+        closure = null) {
         def step = new TriggerStep(trigger)
         if (closure) {
             step.with(closure)
@@ -559,8 +564,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
     }
 
     /**
-     * A trigger step creates a build on another pipeline. You can use trigger steps to separate your test and deploy pipelines, or to create build
-     * dependencies between pipelines.
+     * A trigger step creates a build on another pipeline. You can use trigger steps to separate your test and deploy
+     * pipelines, or to create build dependencies between pipelines.
      */
     class TriggerStep extends Step {
         TriggerStep(String trigger) {
@@ -568,8 +573,9 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         }
 
         /**
-         * If set to true the step will immediately continue, regardless of the success of the triggered build. If set to false the step will wait for the
-         * triggered build to complete and continue only if the triggered build passed.
+         * If set to true the step will immediately continue, regardless of the success of the triggered build. If
+         * set to false the step will wait for the triggered build to complete and continue only if the triggered
+         * build passed.
          */
         void async(boolean async = true) {
             model.async = async
