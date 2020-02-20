@@ -1,6 +1,7 @@
 # Buildkite Gradle Plugin
 
 [![Build Status](https://badge.buildkite.com/9a1d9c36585e925d7b531e3f456a33de3bddda2a6db9ffee91.svg)](https://buildkite.com/widen/buildkite-gradle-plugin)
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/Widen/buildkite-gradle-plugin?color=%2302303A&label=plugin&logo=gradle)][plugin page]
 
 A [Gradle] plugin that provides a DSL for dynamically generating [Buildkite] pipelines.
 
@@ -16,7 +17,7 @@ plugins {
 }
 ```
 
-Check out the [releases] page for a list of versions and the changelog for each. Now you are ready to start defining Buildkite pipelines using Groovy inside your `build.gradle`.
+Check out the [releases] page for a list of versions and the changelog for each. Now you are ready to start defining Buildkite pipelines using Groovy inside your `build.gradle`!
 
 ## Configuration
 
@@ -74,4 +75,5 @@ Available under the Apache-2.0 license. See [the license file](LICENSE) for deta
 
 [Buildkite]: https://buildkite.com
 [Gradle]: https://gradle.org
+[plugin page]: https://plugins.gradle.org/plugin/com.widen.buildkite
 [releases]: https://github.com/Widen/buildkite-gradle-plugin/releases
