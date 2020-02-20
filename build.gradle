@@ -9,7 +9,7 @@ plugins {
 
 apply plugin: BuildkitePlugin
 
-group = 'com.widen.oss'
+group = 'com.widen'
 
 dependencies {
     compile gradleApi()
