@@ -20,6 +20,13 @@ jar {
     from "${rootProject.rootDir}/buildSrc/build/classes/groovy/main"
 }
 
+System.getenv("GRADLE_PUBLISH_KEY").each {
+    System.setProperty("gradle.publish.key", it)
+}
+System.getenv("GRADLE_PUBLISH_SECRET").each {
+    System.setProperty("gradle.publish.secret", it)
+}
+
 gradlePlugin {
     plugins {
         buildkitePlugin {
