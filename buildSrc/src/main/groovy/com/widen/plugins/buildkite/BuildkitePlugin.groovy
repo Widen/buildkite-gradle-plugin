@@ -1,6 +1,5 @@
 package com.widen.plugins.buildkite
 
-
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -25,10 +24,18 @@ class BuildkitePlugin implements Plugin<Project> {
         // Run anything that needs to be done after plugin configuration has been evaluated.
         project.afterEvaluate {
             if (extension.includeScripts) {
+                def shell = new GroovyShell(project.buildscript.classLoader)
+
                 project.fileTree(project.rootDir) {
                     include '.buildkite/pipeline*.gradle'
-                }.each {
-                    project.apply from: it
+                }.each { file ->
+                    def pipelineName = file.name.find(/pipeline\.([^.]+)\.gradle/) { x, name ->
+                        name.replaceAll(/[^a-zA-Z0-9]+([a-zA-Z0-9]+)/) { y, word ->
+                            word.capitalize()
+                        }
+                    } ?: 'default'
+                    def closure = (Closure) shell.evaluate("{buildkite -> ${file.text}}", file.name)
+                    extension.pipeline(pipelineName, closure)
                 }
             }
 

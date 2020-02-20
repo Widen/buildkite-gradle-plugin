@@ -59,9 +59,13 @@ buildkite {
 
 A Gradle task named `uploadDeployStagePipeline` will be created automatically. Running this Gradle task locally spits out the JSON representation, so you can see if your pipeline looks correct. Inside Buildkite the pipeline will be added to the current build.
 
-You can also define your pipelines inside Gradle files in a `.buildkite` directory matching the pattern `pipeline*.gradle`. These files will be loaded and evaluated inside the plugin context automatically (unless `buildkite.includeScripts` is set to false).
+You can also define your pipelines inside Gradle files in a `.buildkite` directory matching the pattern `pipeline*.gradle`. These files will be loaded and evaluated inside the pipeline context automatically (unless `buildkite.includeScripts` is set to false). The name of the pipeline is determined from the file name automatically; `pipeline.{name}.gradle` becomes the camelCase version of `{name}`, while `pipeline.gradle` is named `default`. See [`pipeline.extra-steps.gradle`](.buildkite/pipeline.extra-steps.gradle) for an example of this.
 
 This example demonstrates the power of using a language like Groovy to dynamically generate a pipeline based on lists or other dynamic code. You could even parallelize your unit tests by generating a separate step for each subproject reported by Gradle! Check out the [plugin's own pipeline](https://github.com/Widen/buildkite-gradle-plugin/blob/master/build.gradle) for more examples.
+
+## Tasks
+
+Aside from the `upload{name}Pipeline` tasks created, a `pipelines` task is also provided that lists the names of all pipelines found in the project.
 
 ## License
 
