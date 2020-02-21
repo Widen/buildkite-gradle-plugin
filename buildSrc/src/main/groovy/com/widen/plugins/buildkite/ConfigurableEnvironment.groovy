@@ -26,7 +26,7 @@ trait ConfigurableEnvironment {
         closure = (Closure) closure.clone()
         closure.delegate = map
         closure.resolveStrategy = Closure.OWNER_FIRST
-        closure()
+        closure.call()
         environment(map)
     }
 }

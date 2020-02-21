@@ -1,5 +1,6 @@
 package com.widen.plugins.buildkite
 
+import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -24,7 +25,10 @@ class BuildkitePlugin implements Plugin<Project> {
         // Run anything that needs to be done after plugin configuration has been evaluated.
         project.afterEvaluate {
             if (extension.includeScripts) {
-                def shell = new GroovyShell(project.buildscript.classLoader)
+                def shell = new GroovyShell(project.buildscript.classLoader, new Binding(project: project), new
+                    CompilerConfiguration(
+                    scriptBaseClass: PipelineScript.class.name
+                ))
 
                 project.fileTree(project.rootDir) {
                     include '.buildkite/pipeline*.gradle'
@@ -34,13 +38,21 @@ class BuildkitePlugin implements Plugin<Project> {
                             word.capitalize()
                         }
                     } ?: 'default'
-                    def closure = (Closure) shell.evaluate("{buildkite -> ${file.text}}", file.name)
-                    extension.pipeline(pipelineName, closure)
+
+                    def script = (PipelineScript) shell.parse(file)
+
+                    extension.pipeline(pipelineName) { BuildkitePipeline pipeline ->
+                        println(pipeline)
+                        script.setPipeline(pipeline)
+                        script.setBuildkite(extension)
+                        script.setProject(project)
+                        script.run()
+                    }
                 }
             }
 
             extension.pipelines.each { name, config ->
-                def taskName = name == 'default' ? 'uploadPipeline' : "upload${name}Pipeline"
+                def taskName = name == 'default' ? 'uploadPipeline' : "upload${name.capitalize()}Pipeline"
 
                 project.tasks.create(taskName, UploadPipelineTask) {
                     pipelineConfigure = config

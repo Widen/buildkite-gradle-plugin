@@ -19,6 +19,13 @@ commandStep {
 }
 
 commandStep {
+    command "run-unit-tests.sh"
+
+    environment {
+        // In standalone pipeline files we can access the root project via "project".
+        PROJECT_VERSION = project.version
+    }
+
     // Common Buildkite plugins are also part of the DSL.
     dockerCompose {
         run 'unit'
