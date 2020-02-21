@@ -54,7 +54,11 @@ class BuildkitePlugin implements Plugin<Project> {
 
             extension.pipeline(pipelineName) { BuildkitePipeline pipeline ->
                 // Avoid loading the file until the pipeline spec is actually requested.
-                def script = (PipelineScript) shell.parse(new GroovyCodeSource(file.text, file.path, file.path))
+                def script = (PipelineScript) shell.parse(new GroovyCodeSource(
+                    file.text,
+                    "${pipelineName}Pipeline", // override class name to handle files with dashes
+                    file.path
+                ))
                 script.setProject(project)
                 script.setBuildkite(extension)
                 script.setPipeline(pipeline)
