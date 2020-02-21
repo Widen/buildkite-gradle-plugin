@@ -50,9 +50,11 @@ class BuildkitePlugin implements Plugin<Project> {
         ))
 
         files.each { file ->
-            extension.pipeline(pipelineNameFromFile(file)) { BuildkitePipeline pipeline ->
+            def pipelineName = pipelineNameFromFile(file)
+
+            extension.pipeline(pipelineName) { BuildkitePipeline pipeline ->
                 // Avoid loading the file until the pipeline spec is actually requested.
-                def script = (PipelineScript) shell.parse(file)
+                def script = (PipelineScript) shell.parse(new GroovyCodeSource(file.text, file.path, file.path))
                 script.setProject(project)
                 script.setBuildkite(extension)
                 script.setPipeline(pipeline)
