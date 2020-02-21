@@ -3,21 +3,19 @@ package com.widen.plugins.buildkite
 import org.gradle.api.Project
 
 /**
- * Base class for scripts
+ * Base class for scripts that define a Buildkite pipeline.
  */
 abstract class PipelineScript extends Script {
-    BuildkitePipeline pipeline
-    BuildkitePlugin.Extension buildkite
     Project project
+    BuildkiteExtension buildkite
+    BuildkitePipeline pipeline
 
     Object getProperty(String property) {
-        if ('buildkite' == property) {
-            return buildkite
+        try {
+            return getMetaClass().getProperty(this, property)
+        } catch (MissingPropertyException e) {
+            return pipeline.getProperty(property)
         }
-        if ('project' == property) {
-            return project
-        }
-        return pipeline.getProperty(property)
     }
 
     void setProperty(String property, Object newValue) {
@@ -25,6 +23,10 @@ abstract class PipelineScript extends Script {
     }
 
     Object invokeMethod(String name, Object args) {
-        return pipeline.invokeMethod(name, args)
+        try {
+            return getMetaClass().invokeMethod(this, name, args)
+        } catch (MissingMethodException e) {
+            return pipeline.invokeMethod(name, args)
+        }
     }
 }

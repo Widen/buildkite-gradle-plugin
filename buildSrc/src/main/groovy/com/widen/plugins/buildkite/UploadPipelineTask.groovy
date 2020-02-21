@@ -1,6 +1,7 @@
 package com.widen.plugins.buildkite
 
 import groovy.json.JsonOutput
+import groovy.transform.PackageScope
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -8,16 +9,17 @@ import org.gradle.api.tasks.TaskAction
  * A Gradle task that uploads a pipeline during a build.
  */
 class UploadPipelineTask extends DefaultTask {
-    Closure<BuildkitePipeline> pipelineConfigure
+    @PackageScope
+    Closure<BuildkitePipeline> pipelineConfig
 
     /**
      * Upload the pipeline to Buildkite to be executed.
      */
     @TaskAction
     void upload() {
-        def pipeline = pipelineConfigure.call()
+        def pipeline = pipelineConfig.call()
 
-        if (System.env.BUILDKITE || System.env.CI) {
+        if (System.getenv('BUILDKITE') || System.getenv('CI')) {
             def cmd = ['buildkite-agent', 'pipeline', 'upload']
 
             if (!pipeline.interpolate) {
@@ -34,7 +36,7 @@ class UploadPipelineTask extends DefaultTask {
                 it << pipeline.toJson()
             }
             if (process.waitFor() != 0) {
-                throw new RuntimeException()
+                throw new RuntimeException("buildkite-agent returned exit code ${process.exitValue()}")
             }
         } else {
             print(JsonOutput.prettyPrint(pipeline.toJson()))

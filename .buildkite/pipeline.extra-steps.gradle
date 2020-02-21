@@ -52,8 +52,6 @@ blockStep(':rocket: Release!') {
     }
 }
 
-triggerStep 'other-pipeline'
-
 triggerStep 'other-pipeline', {
     branches 'master'
     async true

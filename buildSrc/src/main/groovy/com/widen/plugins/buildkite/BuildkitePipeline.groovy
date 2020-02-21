@@ -2,17 +2,20 @@ package com.widen.plugins.buildkite
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonOutput
+import org.gradle.api.Project
 
 import java.nio.file.Files
 import java.time.Duration
 
 class BuildkitePipeline implements ConfigurableEnvironment {
-    private final BuildkitePlugin.Config pluginConfig
+    private final Project project
+    private final BuildkiteExtension buildkite
     private final Map<String, String> env = [:]
-    private final List steps = []
+    private final List<Object> steps = []
 
-    BuildkitePipeline(BuildkitePlugin.Config pluginConfig) {
-        this.pluginConfig = pluginConfig
+    BuildkitePipeline(Project project, BuildkiteExtension buildkite) {
+        this.project = project
+        this.buildkite = buildkite
     }
 
     /**
@@ -68,7 +71,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
     class CommandStep extends Step implements ConfigurableEnvironment {
         // Set defaults.
         {
-            agentQueue pluginConfig.defaultAgentQueue
+            agentQueue buildkite.defaultAgentQueue
         }
 
         /**
@@ -216,8 +219,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
             }
 
             // If no version is given and a default version is defined, set it.
-            if (!name.contains("#") && pluginConfig.pluginVersions.containsKey(name)) {
-                name += "#${pluginConfig.pluginVersions[name]}"
+            if (!name.contains("#") && buildkite.pluginVersions.containsKey(name)) {
+                name += "#${buildkite.pluginVersions[name]}"
             }
 
             model.get('plugins', []) << [
@@ -321,7 +324,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
 
             // Pre-populate some config files.
             ['docker-compose.yml', 'docker-compose.buildkite.yml'].each {
-                if (Files.exists(pluginConfig.rootDir.toPath().resolve(it))) {
+                if (Files.exists(project.rootDir.toPath().resolve(it))) {
                     config.composeFile(it)
                 }
             }
@@ -619,7 +622,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
                 closure = (Closure) closure.clone()
                 closure.delegate = map
                 closure.resolveStrategy = Closure.OWNER_FIRST
-                closure()
+                closure.call()
 
                 model.get('build', [:])
                     .get('meta_data', [:])
