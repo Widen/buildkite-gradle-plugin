@@ -259,12 +259,12 @@ class BuildkitePipeline implements ConfigurableEnvironment {
             }
 
             /**
-             * Set an environment variable to pass into the Docker container.
+             * Set one or more environment variables to pass into the Docker container.
              *
-             * @param name The variable name.
+             * @param name The variable names.
              */
-            void environment(String name) {
-                model.get('environment', []) << name
+            void environment(String... names) {
+                model.get('environment', []).addAll(names)
             }
 
             /**
@@ -383,10 +383,12 @@ class BuildkitePipeline implements ConfigurableEnvironment {
             }
 
             /**
-             * Set an environment variable to pass into the container.
+             * Set one or more environment variables to pass into the Docker container.
+             *
+             * @param name The variable names.
              */
-            void environment(String name) {
-                model.get('env', []) << name
+            void environment(String... names) {
+                model.get('env', []).addAll(names)
             }
 
             /**
