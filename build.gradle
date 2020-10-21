@@ -70,6 +70,12 @@ buildkite {
 
             plugin 'Widen/gradle#v1', {
                 tasks 'check'
+                systemProperties "com.widen.plugins.buildkite.foo": "bar"
+                foo = [
+                    {
+                        bar = 2
+                    }
+                ]
             }
         }
 

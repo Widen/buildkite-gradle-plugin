@@ -5,12 +5,13 @@ environment {
 blockStep 'Wait a minute!'
 
 commandStep {
+    def xVal = 1
     plugin 'foobar', [
         name: 'Baz',
         list: [
-            [
-                x: 1
-            ],
+            {
+                x = xVal
+            },
             [
                 x: 2
             ]

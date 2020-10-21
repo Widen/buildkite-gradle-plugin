@@ -1,0 +1,5 @@
+def ctx = context(pathRegexp: /.*\/pipeline(\.[^.]+)?\.gradle/)
+
+contributor(ctx) {
+    delegatesTo(findClass('com.widen.plugins.buildkite.BuildkitePipeline'))
+}

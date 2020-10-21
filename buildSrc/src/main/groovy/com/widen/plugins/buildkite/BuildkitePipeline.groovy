@@ -1,6 +1,5 @@
 package com.widen.plugins.buildkite
 
-import groovy.json.JsonBuilder
 import groovy.json.JsonOutput
 import org.gradle.api.Project
 
@@ -212,11 +211,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
          * syntax for the plugin name.
          */
         void plugin(String name, Object config = null) {
-            if (config instanceof Closure) {
-                def builder = new JsonBuilder()
-                builder.call(config)
-                config = builder.content
-            }
+            config = PluginBuilder.expand(config)
 
             // If no version is given and a default version is defined, set it.
             if (!name.contains("#") && buildkite.pluginVersions.containsKey(name)) {
