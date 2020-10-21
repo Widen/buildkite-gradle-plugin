@@ -1,0 +1,11 @@
+/**
+ * Enable DSL support in IDEA, see https://confluence.jetbrains.com/display/GRVY/Scripting+IDE+for+DSL+awareness
+ */
+
+package com.widen.plugins.buildkite.idea
+
+def ctx = context(pathRegexp: /.*\/pipeline(\.[^.]+)?\.gradle/)
+
+contributor(ctx) {
+    delegatesTo(findClass('com.widen.plugins.buildkite.BuildkitePipeline'))
+}
