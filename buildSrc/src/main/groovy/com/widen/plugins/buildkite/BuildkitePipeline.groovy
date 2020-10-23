@@ -410,8 +410,8 @@ class BuildkitePipeline implements ConfigurableEnvironment {
             /**
              * Add a Docker Compose configuration file to use.
              */
-            void composeFile(String composeFile) {
-                model.get('config', []) << composeFile
+            void composeFile(String path) {
+                model.get('config', []) << path
             }
         }
     }

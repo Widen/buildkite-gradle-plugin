@@ -4,8 +4,188 @@
 
 package com.widen.plugins.buildkite.idea
 
-def ctx = context(pathRegexp: /.*\/pipeline(\.[^.]+)?\.gradle/)
+def ctx = context(pathRegexp: /.*\/pipeline(\.[^.]+)?\.(gradle|groovy)/, scope: scriptScope())
+def closureCtx = context(scope: closureScope(isArg: true))
 
 contributor(ctx) {
-    delegatesTo(findClass('com.widen.plugins.buildkite.BuildkitePipeline'))
+    method name: 'environment', params: [name: String, value: Object], doc: '''
+        Add an environment variable to this pipeline or step.
+    '''
+    method name: 'environment', params: [variables: 'java.util.Map<java.lang.String, java.lang.String>']
+    method name: 'environment', params: [body: Closure]
+    method name: 'waitStep', doc: 'Add a wait step to the pipeline.'
+    method name: 'waitStepContinueOnFailure', doc: 'Add a wait step to the pipeline that continues on failure.'
+    method name: 'commandStep', params: [body: Closure], doc: 'Add a command step to the pipeline.'
+    method name: 'blockStep', params: [label: String], doc: '''
+        Add a block step to the pipeline.
+    '''
+    method name: 'blockStep', params: [label: String, body: Closure], doc: 'Add a block step to the pipeline.'
+    method name: 'triggerStep', params: [trigger: String, body: Closure], doc: 'Add a trigger step to the pipeline.'
+}
+
+contributor([ctx, closureCtx]) {
+    if (enclosingCall('environment')) {
+        delegatesTo findClass('java.util.Map')
+    }
+
+    if (enclosingCall('commandStep') || enclosingCall('blockStep') || enclosingCall('triggerStep')) {
+        method name: 'label', params: [label: String], doc: '''
+            Sets the label that will be displayed in the pipeline visualisation in Buildkite.
+        '''
+        method name: 'branches', params: [branches: 'java.lang.String[]'], doc: '''
+            The branch patterns defining which branches will include this step in their builds.
+        '''
+    }
+
+    if (enclosingCall('commandStep')) {
+        method name: 'command', params: [command: String], doc: 'The shell command to run during this step.'
+        method name: 'commands', params: [commands: 'java.lang.String[]'], doc: '''
+            The shell commands to run during this step.
+        '''
+        method name: 'agentQueue', params: [name: String], doc: 'The agent queue that should run this step.'
+        method name: 'agentQueue', params: [name: String, region: String], doc: '''
+            The agent queue that should run this step.
+        '''
+        method name: 'artifactPath', params: [path: String], doc: '''
+            Add a glob path of artifacts to upload from this step.
+        '''
+        method name: 'concurrency', params: [group: String, concurrency: Integer], doc: '''
+            The maximum number of jobs created from this step that are allowed to run at the same time.
+        '''
+        method name: 'parallelism', params: [parallelism: Integer], doc: '''
+            The number of parallel jobs that will be created based on this step.
+        '''
+        method name: 'automaticRetry', params: [body: Closure], doc: 'Retry this step automatically on failure.'
+        method name: 'skip', doc: 'Skip this step.'
+        method name: 'skip', params: [reason: String], doc: 'Skip this step with a given reason string.'
+        method name: 'timeout', params: [timeout: 'java.time.Duration'], doc: '''
+            The amount of time a job created from this step is allowed to run. If the job does not finish within this
+            limit, it will be automatically cancelled and the build will fail.
+        '''
+        method name: 'plugin', params: [name: String], doc: 'Add a Buildkite plugin to this step.'
+        method name: 'plugin', params: [name: String, body: Object], doc: 'Add a Buildkite plugin to this step.'
+        method name: 'docker', params: [body: Closure], doc: 'Add the Docker plugin to this step.'
+        method name: 'dockerCompose', params: [body: Closure], doc: 'Add the Docker Compose plugin to this step.'
+
+        if (enclosingCall('automaticRetry')) {
+            method name: 'exitStatus', params: [exitStatus: Integer], doc: '''
+                The exit status number that will cause this job to retry.
+            '''
+            method name: 'limit', params: [limit: Integer], doc: '''
+                The number of times this job can be retried. The maximum value this can be set to is 10.
+            '''
+        }
+
+        if (enclosingCall('docker') || enclosingCall('dockerCompose')) {
+            method name: 'environment', params: [names: 'java.lang.String[]'], doc: '''
+                Set one or more environment variables to pass into the Docker container.
+            '''
+        }
+
+        if (enclosingCall('docker')) {
+            method name: 'image', params: [image: String], doc: 'The name of the Docker image to use.'
+            method name: 'alwaysPull', doc: 'Always pull the latest image before running the command.'
+            method name: 'propagateEnvironment', doc: '''
+                Automatically propagate all pipeline environment variables into the container.
+            '''
+            method name: 'volume', params: [source: String, target: String], doc: '''
+                Add a volume mount to pass to the container.
+            '''
+            method name: 'volumes', params: [volumes: 'java.util.Map<java.lang.String, java.lang.String>'], doc: '''
+                Add extra volume mounts to pass to the container.
+            '''
+            method name: 'entrypoint', params: [entrypoint: String], doc: 'Override the Docker container entrypoint.'
+            method name: 'shell', params: [args: 'java.lang.String[]'], doc: 'Set the shell to use for the command.'
+        }
+
+        if (enclosingCall('dockerCompose')) {
+            method name: 'build', params: [services: 'java.lang.String[]'], doc: 'The names of services to build.'
+            method name: 'run', params: [service: String], doc: '''
+                The name of the service the command should be run within.
+            '''
+            method name: 'push', params: [service: String, image: String], doc: '''
+                Push a built service to a repository. Multiple pushes are allowed in one step.
+            '''
+            method name: 'push', params: [service: String, image: String, tag: String], doc: '''
+                Push a built service to a repository. Multiple pushes are allowed in one step.
+            '''
+            method name: 'imageRepository', params: [repository: String], doc: '''
+                The repository for pushing and pulling pre-built images.
+            '''
+            method name: 'imageName', params: [name: String], doc: 'The name to use when tagging pre-built images.'
+            method name: 'cacheFrom', params: [service: String, image: String], doc: '''
+                Specify a Docker image to pull down to use as a layer cache for building the given service.
+            '''
+            method name: 'cacheFrom', params: [service: String, image: String, tag: String], doc: '''
+                Specify a Docker image to pull down to use as a layer cache for building the given service.
+            '''
+            method name: 'composeFile', params: [path: String], doc: 'Add a Docker Compose configuration file to use.'
+        }
+    }
+
+    if (enclosingCall('blockStep')) {
+        method name: 'prompt', params: [prompt: String], doc: '''
+            Sets an instructional message displayed in the dialog box when the unblock step is activated.
+        '''
+        method name: 'textField', params: [label: String, key: String], doc: '''
+            Add a text field to be filled out before unblocking the step.
+        '''
+        method name: 'textField', params: [label: String, key: String, body: Closure], doc: '''
+            Add a text field to be filled out before unblocking the step.
+        '''
+        method name: 'selectField', params: [label: String, key: String, body: Closure], doc: '''
+            Add a text field to be filled out before unblocking the step.
+        '''
+
+        if (enclosingCall('textField') || enclosingCall('selectField')) {
+            method name: 'hint', params: [hint: String], doc: 'Set the explanatory text that is shown after the label.'
+            method name: 'required', doc: '''
+                A boolean value that defines whether the field is required for form submission.
+            '''
+            method name: 'required', params: [required: Boolean], doc: '''
+                A boolean value that defines whether the field is required for form submission.
+            '''
+            method name: 'defaultValue', params: [value: String], doc: 'The value that is pre-filled or pre-selected.'
+        }
+
+        if (enclosingCall('selectField')) {
+            method name: 'multiple', doc: '''
+                A boolean value that defines whether multiple options may be selected. When multiple options are
+                selected, they are delimited in the meta-data field by a line break (\\n).
+            '''
+            method name: 'multiple', params: [multiple: Boolean], doc: '''
+                A boolean value that defines whether multiple options may be selected. When multiple options are
+                selected, they are delimited in the meta-data field by a line break (\\n).
+            '''
+            method name: 'defaultValues', doc: 'When multiple is enabled, set an array of values to select by default.'
+            method name: 'option', params: [label: String, value: String], doc: 'Add a field option.'
+        }
+    }
+
+    if (enclosingCall('triggerStep')) {
+        method name: 'async', doc: '''
+            If set to true the step will immediately continue, regardless of the success of the triggered build. If
+            set to false the step will wait for the triggered build to complete and continue only if the triggered
+            build passed.
+        '''
+        method name: 'async', params: [async: Boolean], doc: '''
+            If set to true the step will immediately continue, regardless of the success of the triggered build. If
+            set to false the step will wait for the triggered build to complete and continue only if the triggered
+            build passed.
+        '''
+        method name: 'build', params: [body: Closure], doc: 'Configure optional attributes for the triggered build.'
+
+        if (enclosingCall('build')) {
+            method name: 'message', params: [message: String], doc: '''
+                The message for the build. Supports emoji. Default: the label of the trigger step.
+            '''
+            method name: 'commit', params: [commit: String], doc: 'The commit hash for the build.'
+            method name: 'branch', params: [branch: String], doc: 'The branch for the build.'
+            method name: 'metadata', params: [body: Closure], doc: 'Set meta-data for the build.'
+
+            if (enclosingCall('metadata')) {
+                delegatesTo findClass('java.util.Map')
+            }
+        }
+    }
 }
