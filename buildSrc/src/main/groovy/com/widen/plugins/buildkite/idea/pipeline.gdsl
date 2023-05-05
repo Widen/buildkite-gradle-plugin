@@ -62,6 +62,7 @@ contributor([ctx, closureCtx]) {
             The amount of time a job created from this step is allowed to run. If the job does not finish within this
             limit, it will be automatically cancelled and the build will fail.
         '''
+        method name: 'key', params: [key: String], doc: 'A unique string to identify the step.'
         method name: 'plugin', params: [name: String], doc: 'Add a Buildkite plugin to this step.'
         method name: 'plugin', params: [name: String, body: Object], doc: 'Add a Buildkite plugin to this step.'
         method name: 'docker', params: [body: Closure], doc: 'Add the Docker plugin to this step.'
