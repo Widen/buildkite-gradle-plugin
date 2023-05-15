@@ -201,6 +201,13 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         }
 
         /**
+         * A unique string to identify the step.
+         */
+        void key(String key) {
+            model.key = key
+        }
+
+        /**
          * Add a Buildkite plugin to this step.
          *
          * @param name The plugin name or URL and version.
