@@ -12,8 +12,8 @@ class BuildkiteExtension {
 
     @PackageScope
     final Map<String, String> pluginVersions = [
-        docker: 'v3.2.0',
-        'docker-compose': 'v3.0.3',
+        docker: 'v5.9.0',
+        'docker-compose': 'v4.15.0',
     ]
 
     /**

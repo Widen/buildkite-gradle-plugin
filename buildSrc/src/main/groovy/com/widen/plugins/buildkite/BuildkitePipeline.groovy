@@ -287,6 +287,32 @@ class BuildkitePipeline implements ConfigurableEnvironment {
             }
 
             /**
+             * Automatically mount the `buildkite-agent` binary and associated
+             * environment variables from the host agent machine into the container.
+             */
+            void mountBuildkiteAgent() {
+                model['mount-buildkite-agent'] = true
+            }
+
+            /**
+             * Activate the interpolation of variables in the elements of the volumes
+             * configuration array. Environment variable interpolation rules apply here.
+             * `$VARIABLE_NAME` is resolved at pipeline upload time, whereas `$$VARIABLE_NAME` is
+             * at run time. All things being equal, you likely want `$$VARIABLE_NAME`.
+             */
+            void expandVolumeVars() {
+                model['expand-volume-vars'] = true
+            }
+
+            /**
+             * Enables debug mode, which outputs the full Docker commands that will be
+             * run on the agent machine.
+             */
+            void debug() {
+                model.debug = true
+            }
+
+            /**
              * Add a volume mount to pass to the container.
              */
             void volume(String source, String target) {
@@ -398,6 +424,33 @@ class BuildkitePipeline implements ConfigurableEnvironment {
              */
             void environment(String name, Object value) {
                 model.get('env', []) << "$name=$value"
+            }
+
+
+
+            /**
+             * Automatically propagate all pipeline environment variables into the container.
+             */
+            void propagateEnvironment() {
+                model['propagate-environment'] = true
+            }
+
+            /**
+             * Automatically mount the `buildkite-agent` binary and associated
+             * environment variables from the host agent machine into the container.
+             */
+            void mountBuildkiteAgent() {
+                model['mount-buildkite-agent'] = true
+            }
+
+            /**
+             * Activate the interpolation of variables in the elements of the volumes
+             * configuration array. Environment variable interpolation rules apply here.
+             * `$VARIABLE_NAME` is resolved at pipeline upload time, whereas `$$VARIABLE_NAME` is
+             * at run time. All things being equal, you likely want `$$VARIABLE_NAME`.
+             */
+            void expandVolumeVars() {
+                model['expand-volume-vars'] = true
             }
 
             /**
