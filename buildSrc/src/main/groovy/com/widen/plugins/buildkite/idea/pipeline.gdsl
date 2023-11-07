@@ -97,6 +97,20 @@ contributor([ctx, closureCtx]) {
             '''
             method name: 'entrypoint', params: [entrypoint: String], doc: 'Override the Docker container entrypoint.'
             method name: 'shell', params: [args: 'java.lang.String[]'], doc: 'Set the shell to use for the command.'
+            method name: 'mountBuildkiteAgent', doc: '''
+                Automatically mount the `buildkite-agent` binary and associated environment 
+                variables from the host agent machine into the container.
+            '''
+            method name: 'expandVolumeVars', doc: '''
+                Activate the interpolation of variables in the elements of the volumes
+                configuration array. Environment variable interpolation rules apply here.
+                `$VARIABLE_NAME` is resolved at pipeline upload time, whereas `$$VARIABLE_NAME` is
+                at run time. All things being equal, you likely want `$$VARIABLE_NAME`.
+            '''
+            method name: 'debug', doc: '''
+                Enables debug mode, which outputs the full Docker commands that will be
+                run on the agent machine.
+            '''
         }
 
         if (enclosingCall('dockerCompose')) {
@@ -121,6 +135,19 @@ contributor([ctx, closureCtx]) {
                 Specify a Docker image to pull down to use as a layer cache for building the given service.
             '''
             method name: 'composeFile', params: [path: String], doc: 'Add a Docker Compose configuration file to use.'
+            method name: 'propagateEnvironment', doc: '''
+                Automatically propagate all pipeline environment variables into the container.
+            '''
+            method name: 'mountBuildkiteAgent', doc: '''
+                Automatically mount the `buildkite-agent` binary and associated environment 
+                variables from the host agent machine into the container.
+            '''
+            method name: 'expandVolumeVars', doc: '''
+                Activate the interpolation of variables in the elements of the volumes
+                configuration array. Environment variable interpolation rules apply here.
+                `$VARIABLE_NAME` is resolved at pipeline upload time, whereas `$$VARIABLE_NAME` is
+                at run time. All things being equal, you likely want `$$VARIABLE_NAME`.
+            '''
         }
     }
 
