@@ -667,7 +667,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         }
 
         void softFail(int... exitStatuses) {
-            model.soft_fail = exitStatuses.toList()
+            model.soft_fail = exitStatuses.collect { exitStatus -> ['exit_status': exitStatus] }
         }
     }
 
