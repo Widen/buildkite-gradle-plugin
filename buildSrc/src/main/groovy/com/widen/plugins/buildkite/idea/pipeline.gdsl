@@ -58,6 +58,10 @@ contributor([ctx, closureCtx]) {
         method name: 'automaticRetry', params: [body: Closure], doc: 'Retry this step automatically on failure.'
         method name: 'skip', doc: 'Skip this step.'
         method name: 'skip', params: [reason: String], doc: 'Skip this step with a given reason string.'
+        method name: 'softFail', params: [softFail: Boolean], doc: 'Soft fail this step.'
+        method name: 'softFail', params: [exitStatuses: 'java.lang.Integer[]'], doc: '''
+            Soft fail this step for the given exit statuses.
+        '''
         method name: 'timeout', params: [timeout: 'java.time.Duration'], doc: '''
             The amount of time a job created from this step is allowed to run. If the job does not finish within this
             limit, it will be automatically cancelled and the build will fail.
