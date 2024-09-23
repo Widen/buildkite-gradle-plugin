@@ -85,7 +85,7 @@ buildkite {
         commandStep {
             label ':boom: Soft fail step'
             command 'soft-fail.sh'
-            softFail()
+            softFail(1, 127)
         }
 
         waitStep()
