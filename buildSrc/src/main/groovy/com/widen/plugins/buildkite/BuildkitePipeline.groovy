@@ -208,6 +208,13 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         }
 
         /**
+         * Make this step depend on the completion of another step
+         */
+        void dependsOn(String dependsOn) {
+            model.depends_on = dependsOn
+        }
+
+        /**
          * Add a Buildkite plugin to this step.
          *
          * @param name The plugin name or URL and version.
