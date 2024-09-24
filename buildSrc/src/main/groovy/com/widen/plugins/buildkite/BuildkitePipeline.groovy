@@ -668,6 +668,14 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         void branches(String... branches) {
             model.branches = branches.join(' ')
         }
+
+        void softFail(boolean softFail = true) {
+            model.soft_fail = softFail
+        }
+
+        void softFail(int... exitStatuses) {
+            model.soft_fail = exitStatuses.collect { exitStatus -> ['exit_status': exitStatus] }
+        }
     }
 
     /**
