@@ -16,6 +16,14 @@ dependencies {
     compile localGroovy()
 }
 
+javadoc {
+    source 'buildSrc/src/main/java'
+}
+
+groovydoc {
+    source 'buildSrc/src/main/groovy'
+}
+
 jar {
     from "${rootProject.rootDir}/buildSrc/build/classes/groovy/main"
     from("${rootProject.rootDir}/buildSrc/src/main/groovy") {
