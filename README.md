@@ -13,7 +13,7 @@ First add the plugin to your project:
 
 ```groovy
 plugins {
-    id 'com.widen.buildkite' version '0.4.0'
+    id 'com.widen.buildkite' version '0.5.1'
 }
 ```
 
