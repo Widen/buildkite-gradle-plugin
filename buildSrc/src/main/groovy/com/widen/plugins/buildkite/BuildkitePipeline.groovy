@@ -214,6 +214,14 @@ class BuildkitePipeline implements ConfigurableEnvironment {
             model.depends_on = dependsOn
         }
 
+        void dependsOn(String... dependsOn) {
+            model.depends_on = dependsOn
+        }
+
+        void allowDependencyFailure(boolean allowDependencyFailure) {
+            model.allow_dependency_failure = allowDependencyFailure
+        }
+
         /**
          * Add a Buildkite plugin to this step.
          *
