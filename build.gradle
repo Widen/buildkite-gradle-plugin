@@ -12,7 +12,7 @@ group = 'com.widen'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
@@ -64,7 +64,7 @@ buildkite {
         commandStep {
             // Most methods mirror the names used in a Buildkite YAML file.
             label ':junit: Unit tests'
-            artifactPath 'src/build/reports/integTest/**/*'
+            artifactPath 'buildSrc/build/reports/tests/**/*'
 
             // Specify which Buildkite agents should pick up this work.
             agentQueue 'builder'
@@ -76,8 +76,8 @@ buildkite {
                 HELLO = 'world'
             }
 
-            plugin 'Widen/gradle#v1', {
-                tasks 'check'
+            plugin 'Widen/gradle#v2', {
+                tasks ':buildSrc:check'
                 systemProperties "com.widen.plugins.buildkite.foo": "bar"
                 foo = [
                     {
@@ -100,7 +100,7 @@ buildkite {
             branches '*.*.*'
 
             // Custom plugins can also be used by name.
-            plugin 'Widen/gradle#v1', {
+            plugin 'Widen/gradle#v2', {
                 tasks 'publishPlugins'
             }
         }
