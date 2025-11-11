@@ -86,8 +86,6 @@ git push origin main --tags
 ./gradlew publishPlugins
 ```
 
-For maintainers: See [PUBLISHING.md](PUBLISHING.md) for detailed instructions on how to publish new versions of this plugin to the Gradle Plugin Portal.
-
 ## License
 
 Available under the Apache-2.0 license. See [the license file](LICENSE) for details.
