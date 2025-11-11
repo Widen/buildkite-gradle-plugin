@@ -215,6 +215,38 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         }
 
         /**
+         * Only run this step on the configured default branch
+         */
+        void onDefaultBranch() {
+            model.if = "build.branch == pipeline.default_branch"
+        }
+
+        /**
+         * Only run this step if NOT the configured default branch
+         */
+        void notOnDefaultBranch() {
+            model.if = "build.branch != pipeline.default_branch"
+        }
+
+        /**
+         * Add an <code>if</code> condition to step
+         * @param condition
+         *
+         * See <a href="https://buildkite.com/docs/pipelines/configure/conditionals">conditionals documentation</a>
+         * for configuration options.
+         */
+        void ifCondition(String condition) {
+            model.if = condition
+        }
+
+        /**
+         * Run command regardless of if any dependency tasks failed
+         */
+        void allowDependencyFailure() {
+            model.allow_dependency_failure = true
+        }
+
+        /**
          * Add a Buildkite plugin to this step.
          *
          * @param name The plugin name or URL and version.
