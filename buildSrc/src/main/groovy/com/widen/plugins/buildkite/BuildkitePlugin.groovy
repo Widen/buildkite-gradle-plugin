@@ -3,7 +3,6 @@ package com.widen.plugins.buildkite
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 
 class BuildkitePlugin implements Plugin<Project> {
     private static final String GROUP = 'Buildkite'
@@ -13,7 +12,7 @@ class BuildkitePlugin implements Plugin<Project> {
         def extension = project.extensions.create('buildkite', BuildkiteExtension)
         extension.project = project
 
-        project.task('pipelines') { Task task ->
+        project.tasks.register('pipelines') { task ->
             task.group = GROUP
             task.description = "List all Buildkite pipelines."
 
@@ -35,7 +34,7 @@ class BuildkitePlugin implements Plugin<Project> {
             extension.pipelines.each { name, config ->
                 def taskName = name == 'default' ? 'uploadPipeline' : "upload${name.capitalize()}Pipeline"
 
-                project.tasks.create(taskName, UploadPipelineTask) { task ->
+                project.tasks.register(taskName, UploadPipelineTask) { task ->
                     task.group = GROUP
                     task.description = "Upload the $name pipeline to the current job."
                     task.pipelineConfig = config
