@@ -1,0 +1,7 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Concurrent Job
+  command: echo "test"
+  concurrency: 2
+  concurrency_group: my-group

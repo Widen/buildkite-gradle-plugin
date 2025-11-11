@@ -1,0 +1,6 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Custom Condition
+  command: echo "test"
+  if: build.pull_request.id != null

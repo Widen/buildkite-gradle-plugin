@@ -1,0 +1,10 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: On Default Branch
+  command: echo "default"
+  if: build.branch == pipeline.default_branch
+- agents: {queue: builder}
+  label: Not On Default Branch
+  command: echo "other"
+  if: build.branch != pipeline.default_branch

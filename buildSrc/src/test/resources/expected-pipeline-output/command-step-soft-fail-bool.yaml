@@ -1,0 +1,6 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Soft Fail
+  command: echo "test"
+  soft_fail: true

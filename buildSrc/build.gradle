@@ -26,6 +26,9 @@ dependencies {
     // JUnit 5 (Jupiter) dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // YAML support for test assertions
+    testImplementation 'org.yaml:snakeyaml:2.0'
 }
 
 // Configure test task to use JUnit Platform

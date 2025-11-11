@@ -1,0 +1,6 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Skipped with Reason
+  command: echo "test"
+  skip: Not needed for this build

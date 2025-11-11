@@ -1,0 +1,7 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Auto Retry
+  command: echo "test"
+  retry:
+    automatic: {exit_status: 255, limit: 3}

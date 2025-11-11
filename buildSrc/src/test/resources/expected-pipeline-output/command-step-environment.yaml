@@ -1,0 +1,6 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: With Environment
+  command: echo "test"
+  env: {NODE_ENV: production, DEBUG: 'true'}

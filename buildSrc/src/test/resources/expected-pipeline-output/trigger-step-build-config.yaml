@@ -1,0 +1,10 @@
+env: {}
+steps:
+- trigger: deployment_pipeline
+  label: Trigger Deploy
+  build:
+    message: Deploy from main
+    commit: abc123
+    branch: main
+    env: {DEPLOY_ENV: production}
+    meta_data: {releaseNotes: Initial release}

@@ -1,0 +1,6 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Branch Filter
+  command: echo "test"
+  branches: main develop feature/*

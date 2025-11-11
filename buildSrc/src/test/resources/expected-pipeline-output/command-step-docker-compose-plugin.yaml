@@ -1,0 +1,10 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Docker Compose
+  command: gradle test
+  plugins:
+  - docker-compose#v3.0.3:
+      build: [app, db]
+      run: app
+      env: [DATABASE_URL, 'REDIS_URL=redis://localhost:6379']

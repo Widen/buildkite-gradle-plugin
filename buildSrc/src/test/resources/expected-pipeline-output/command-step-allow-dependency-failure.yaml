@@ -1,0 +1,6 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Cleanup
+  command: echo "cleanup"
+  allow_dependency_failure: true

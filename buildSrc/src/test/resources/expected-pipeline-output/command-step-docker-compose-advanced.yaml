@@ -1,0 +1,13 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Docker Compose Advanced
+  command: gradle build
+  plugins:
+  - docker-compose#v3.0.3:
+      run: app
+      push: ['app:myrepo/app:latest']
+      image-repository: myrepo
+      image-name: my-build-${BUILDKITE_BUILD_NUMBER}
+      cache-from: ['app:myrepo/app:latest']
+      config: [docker-compose.ci.yml]
