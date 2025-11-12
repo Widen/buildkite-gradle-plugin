@@ -37,6 +37,7 @@ class PipelineDslFunctionalTest extends Specification {
     private String runUploadPipeline() {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
+            .withEnvironment(["PIPELINE_TO_STDOUT": "true"])
             .withArguments('uploadPipeline', '--stacktrace')
             .withPluginClasspath()
             .build()
