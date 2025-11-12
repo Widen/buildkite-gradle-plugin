@@ -1,5 +1,3 @@
-import com.widen.plugins.buildkite.BuildkitePlugin
-
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
@@ -36,6 +34,11 @@ jar {
         include '**/*.gdsl'
     }
 }
+
+// https://plugins.gradle.org/u/widen
+// user: widendev
+System.setProperty("gradle.publish.key", System.getenv("GRADLE_PUBLISH_KEY") ?: "")
+System.setProperty("gradle.publish.secret", System.getenv("GRADLE_PUBLISH_SECRET") ?: "")
 
 publishing {
     repositories {
