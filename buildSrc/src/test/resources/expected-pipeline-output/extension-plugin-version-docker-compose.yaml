@@ -1,0 +1,7 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Custom Docker Compose Plugin Version
+  command: echo "test"
+  plugins:
+  - docker-compose#v4.5.0: {run: app}

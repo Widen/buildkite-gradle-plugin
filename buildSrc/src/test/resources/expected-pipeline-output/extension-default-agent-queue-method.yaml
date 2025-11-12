@@ -1,0 +1,5 @@
+env: {}
+steps:
+- agents: {queue: method-set-queue}
+  label: Uses Method Set Queue
+  command: echo "test"

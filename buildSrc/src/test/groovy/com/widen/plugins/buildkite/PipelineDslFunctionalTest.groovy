@@ -1138,6 +1138,165 @@ class PipelineDslFunctionalTest extends Specification {
         assertMatchesExpectedYaml('trigger-step-build-config', json)
     }
 
+    def "test extension property defaultAgentQueue"() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.widen.buildkite'
+            }
+            
+            buildkite {
+                includeScripts = false
+                defaultAgentQueue = 'custom-default-queue'
+                
+                pipeline {
+                    commandStep {
+                        label 'Uses Default Queue'
+                        command 'echo "test"'
+                    }
+                }
+            }
+        """
+
+        when:
+        def output = runUploadPipeline()
+        def json = extractJsonFromOutput(output)
+
+        then:
+        assertMatchesExpectedYaml('extension-default-agent-queue', json)
+    }
+
+    def "test extension property defaultAgentQueue with method"() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.widen.buildkite'
+            }
+            
+            buildkite {
+                includeScripts = false
+                defaultAgentQueue 'method-set-queue'
+                
+                pipeline {
+                    commandStep {
+                        label 'Uses Method Set Queue'
+                        command 'echo "test"'
+                    }
+                }
+            }
+        """
+
+        when:
+        def output = runUploadPipeline()
+        def json = extractJsonFromOutput(output)
+
+        then:
+        assertMatchesExpectedYaml('extension-default-agent-queue-method', json)
+    }
+
+    def "test extension property pluginVersion for docker"() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.widen.buildkite'
+            }
+            
+            buildkite {
+                includeScripts = false
+                pluginVersion 'docker', 'v5.0.0'
+                
+                pipeline {
+                    commandStep {
+                        label 'Custom Docker Plugin Version'
+                        command 'echo "test"'
+                        docker {
+                            image 'alpine:latest'
+                        }
+                    }
+                }
+            }
+        """
+
+        when:
+        def output = runUploadPipeline()
+        def json = extractJsonFromOutput(output)
+
+        then:
+        assertMatchesExpectedYaml('extension-plugin-version-docker', json)
+    }
+
+    def "test extension property pluginVersion for docker-compose"() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.widen.buildkite'
+            }
+            
+            buildkite {
+                includeScripts = false
+                pluginVersion 'docker-compose', 'v4.5.0'
+                
+                pipeline {
+                    commandStep {
+                        label 'Custom Docker Compose Plugin Version'
+                        command 'echo "test"'
+                        dockerCompose {
+                            run 'app'
+                        }
+                    }
+                }
+            }
+        """
+
+        when:
+        def output = runUploadPipeline()
+        def json = extractJsonFromOutput(output)
+
+        then:
+        assertMatchesExpectedYaml('extension-plugin-version-docker-compose', json)
+    }
+
+    def "test extension multiple properties together"() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.widen.buildkite'
+            }
+            
+            buildkite {
+                includeScripts = false
+                defaultAgentQueue = 'production-queue'
+                pluginVersion 'docker', 'v4.0.0'
+                pluginVersion 'docker-compose', 'v3.5.0'
+                
+                pipeline {
+                    commandStep {
+                        label 'Step with Custom Settings'
+                        command 'gradle build'
+                        docker {
+                            image 'openjdk:11'
+                        }
+                    }
+                    
+                    commandStep {
+                        label 'Another Step'
+                        command 'gradle test'
+                        dockerCompose {
+                            run 'test-app'
+                        }
+                    }
+                }
+            }
+        """
+
+        when:
+        def output = runUploadPipeline()
+        def json = extractJsonFromOutput(output)
+
+        then:
+        assertMatchesExpectedYaml('extension-multiple-properties', json)
+    }
+
     def "test complex pipeline with multiple step types"() {
         given:
         buildFile << """
