@@ -2,6 +2,21 @@ environment {
     FOO = 'extra'
 }
 
+commandStep {
+    key "step-a"
+    command "echo hello"
+}
+
+commandStep {
+    key "step-b"
+    command "echo world"
+}
+
+commandStep {
+    command "echo 'Hello World!'"
+    dependsOn "step-a", "step-b"
+}
+
 blockStep 'Wait a minute!'
 
 commandStep {

@@ -5,4 +5,4 @@ java = "corretto-11"
 _.file = ".env"
 
 [tasks.publish-plugin]
-run = "./gradlew publishPlugins"
+run = "./gradlew publishPlugins --info"

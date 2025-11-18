@@ -571,6 +571,50 @@ class PipelineDslFunctionalTest extends Specification {
         assertMatchesExpectedYaml('command-step-key-depends-on', json)
     }
 
+    def "test command step with multiple depends on"() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.widen.buildkite'
+            }
+            
+            buildkite {
+                includeScripts = false
+                
+                pipeline {
+                    commandStep {
+                        label 'Build Backend'
+                        command 'echo "backend"'
+                        key 'build-backend'
+                    }
+                    commandStep {
+                        label 'Build Frontend'
+                        command 'echo "frontend"'
+                        key 'build-frontend'
+                    }
+                    commandStep {
+                        label 'Build Mobile'
+                        command 'echo "mobile"'
+                        key 'build-mobile'
+                    }
+                    commandStep {
+                        label 'Integration Tests'
+                        command 'echo "integration"'
+                        key 'integration'
+                        dependsOn 'build-backend', 'build-frontend', 'build-mobile'
+                    }
+                }
+            }
+        """
+
+        when:
+        def output = runUploadPipeline()
+        def json = extractJsonFromOutput(output)
+
+        then:
+        assertMatchesExpectedYaml('command-step-multiple-depends-on', json)
+    }
+
     def "test command step with branch conditionals"() {
         given:
         buildFile << """

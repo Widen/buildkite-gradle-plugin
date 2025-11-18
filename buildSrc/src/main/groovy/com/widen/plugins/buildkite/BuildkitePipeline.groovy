@@ -215,6 +215,13 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         }
 
         /**
+         * Make this step depend on the completion of another step
+         */
+        void dependsOn(String... dependsOn) {
+            model.depends_on = dependsOn
+        }
+
+        /**
          * Only run this step on the configured default branch
          */
         void onDefaultBranch() {
@@ -244,6 +251,13 @@ class BuildkitePipeline implements ConfigurableEnvironment {
          */
         void allowDependencyFailure() {
             model.allow_dependency_failure = true
+        }
+
+        /**
+         * Run command regardless of if any dependency tasks failed, if <code>true</code>
+         */
+        void allowDependencyFailure(boolean allow) {
+            model.allow_dependency_failure = allow
         }
 
         /**
