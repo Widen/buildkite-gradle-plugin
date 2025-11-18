@@ -534,8 +534,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
          * @param key The meta-data key that stores the field's input (e.g. via the buildkite-agent meta-data
          * command) The key may only contain alphanumeric characters, slashes or dashes.
          */
-        void selectField(String label, String key, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value =
-            SelectField) Closure closure = null) {
+        void selectField(String label, String key, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = SelectField) Closure closure = null) {
             addField(new SelectField(label, key), closure)
         }
 
@@ -614,8 +613,7 @@ class BuildkitePipeline implements ConfigurableEnvironment {
      * @param trigger The slug of the pipeline to create a build. The pipeline slug must be lowercase.
      * @param closure
      */
-    void triggerStep(String trigger, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = TriggerStep) Closure
-        closure = null) {
+    void triggerStep(String trigger, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = TriggerStep) Closure closure = null) {
         def step = new TriggerStep(trigger)
         if (closure) {
             step.with(closure)
