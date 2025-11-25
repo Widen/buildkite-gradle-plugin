@@ -201,66 +201,6 @@ class BuildkitePipeline implements ConfigurableEnvironment {
         }
 
         /**
-         * A unique string to identify the step.
-         */
-        void key(String key) {
-            model.key = key
-        }
-
-        /**
-         * Make this step depend on the completion of another step
-         */
-        void dependsOn(String dependsOn) {
-            model.depends_on = dependsOn
-        }
-
-        /**
-         * Make this step depend on the completion of another step
-         */
-        void dependsOn(String... dependsOn) {
-            model.depends_on = dependsOn
-        }
-
-        /**
-         * Only run this step on the configured default branch
-         */
-        void onDefaultBranch() {
-            model.if = "build.branch == pipeline.default_branch"
-        }
-
-        /**
-         * Only run this step if NOT the configured default branch
-         */
-        void notOnDefaultBranch() {
-            model.if = "build.branch != pipeline.default_branch"
-        }
-
-        /**
-         * Add an <code>if</code> condition to step
-         * @param condition
-         *
-         * See <a href="https://buildkite.com/docs/pipelines/configure/conditionals">conditionals documentation</a>
-         * for configuration options.
-         */
-        void ifCondition(String condition) {
-            model.if = condition
-        }
-
-        /**
-         * Run command regardless of if any dependency tasks failed
-         */
-        void allowDependencyFailure() {
-            model.allow_dependency_failure = true
-        }
-
-        /**
-         * Run command regardless of if any dependency tasks failed, if <code>true</code>
-         */
-        void allowDependencyFailure(boolean allow) {
-            model.allow_dependency_failure = allow
-        }
-
-        /**
          * Add a Buildkite plugin to this step.
          *
          * @param name The plugin name or URL and version.
@@ -719,6 +659,66 @@ class BuildkitePipeline implements ConfigurableEnvironment {
 
         void softFail(int... exitStatuses) {
             model.soft_fail = exitStatuses.collect { exitStatus -> ['exit_status': exitStatus] }
+        }
+
+        /**
+         * A unique string to identify the step.
+         */
+        void key(String key) {
+            model.key = key
+        }
+
+        /**
+         * Make this step depend on the completion of another step
+         */
+        void dependsOn(String dependsOn) {
+            model.depends_on = dependsOn
+        }
+
+        /**
+         * Make this step depend on the completion of another step
+         */
+        void dependsOn(String... dependsOn) {
+            model.depends_on = dependsOn
+        }
+
+        /**
+         * Only run this step on the configured default branch
+         */
+        void onDefaultBranch() {
+            model.if = "build.branch == pipeline.default_branch"
+        }
+
+        /**
+         * Only run this step if NOT the configured default branch
+         */
+        void notOnDefaultBranch() {
+            model.if = "build.branch != pipeline.default_branch"
+        }
+
+        /**
+         * Add an <code>if</code> condition to step
+         * @param condition
+         *
+         * See <a href="https://buildkite.com/docs/pipelines/configure/conditionals">conditionals documentation</a>
+         * for configuration options.
+         */
+        void ifCondition(String condition) {
+            model.if = condition
+        }
+
+        /**
+         * Run command regardless of if any dependency tasks failed
+         */
+        void allowDependencyFailure() {
+            model.allow_dependency_failure = true
+        }
+
+        /**
+         * Run command regardless of if any dependency tasks failed, if <code>true</code>
+         */
+        void allowDependencyFailure(boolean allow) {
+            model.allow_dependency_failure = allow
         }
     }
 
