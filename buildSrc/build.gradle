@@ -1,0 +1,56 @@
+plugins {
+    id 'groovy'
+    id("com.adarshr.test-logger") version "4.0.0"
+}
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+
+    // TestKit dependency
+    testImplementation gradleTestKit()
+
+    // Testing frameworks - Spock 2.3 is built on JUnit 5 Platform
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+
+    // JUnit 5 (Jupiter) dependencies
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // YAML support for test assertions
+    testImplementation 'org.yaml:snakeyaml:2.0'
+}
+
+// Configure test task to use JUnit Platform
+test {
+    useJUnitPlatform()
+}
+
+// Create a task to generate plugin metadata for tests
+tasks.register('createClasspathManifest') {
+    def outputDir = layout.buildDirectory.dir("pluginUnderTestMetadata").get().asFile
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("$outputDir/plugin-under-test-metadata.properties").text = "implementation-classpath=${sourceSets.main.runtimeClasspath.join(File.pathSeparator)}"
+    }
+}
+
+// Make the test runtime classpath include the plugin metadata
+dependencies {
+    testRuntimeOnly files(createClasspathManifest)
+}
+

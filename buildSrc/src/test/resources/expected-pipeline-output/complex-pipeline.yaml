@@ -1,0 +1,36 @@
+env: {CI: 'true', BUILD_ENV: test}
+steps:
+- agents: {queue: builder}
+  label: Unit Tests
+  key: tests
+  command: gradle test
+  artifact_paths: [build/test-results/**/*]
+  parallelism: 3
+  timeout_in_minutes: 10
+  plugins:
+  - docker#v3.2.0: {image: 'openjdk:11', propagate-environment: true}
+- wait
+- agents: {queue: builder}
+  label: Integration Tests
+  command: gradle integrationTest
+  depends_on: tests
+  allow_dependency_failure: true
+  plugins:
+  - docker-compose#v3.0.3:
+      run: app
+      build: [app, db]
+- block: Deploy?
+  prompt: Ready to deploy?
+  fields:
+  - select: Environment
+    key: env
+    options:
+    - {label: Staging, value: staging}
+    - {label: Production, value: prod}
+    required: true
+- trigger: deployment_pipeline
+  label: Deploy
+  async: false
+  build:
+    branch: main
+    env: {TARGET_ENV: production}

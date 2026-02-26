@@ -1,0 +1,13 @@
+env: {}
+steps:
+- block: Select Environment
+  fields:
+  - select: Target Environment
+    key: environment
+    options:
+    - {label: Development, value: dev}
+    - {label: Staging, value: staging}
+    - {label: Production, value: prod}
+    default: dev
+    required: true
+    hint: Choose the deployment target

@@ -1,0 +1,12 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Docker Build
+  command: gradle build
+  plugins:
+  - docker#v3.2.0:
+      image: openjdk:11
+      always-pull: true
+      environment: [GRADLE_OPTS, JAVA_HOME=/usr/lib/jvm/java-11]
+      propagate-environment: true
+      volumes: ['/tmp/cache:/cache']

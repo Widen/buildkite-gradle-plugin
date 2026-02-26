@@ -1,0 +1,19 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Build Backend
+  command: echo "backend"
+  key: build-backend
+- agents: {queue: builder}
+  label: Build Frontend
+  command: echo "frontend"
+  key: build-frontend
+- agents: {queue: builder}
+  label: Build Mobile
+  command: echo "mobile"
+  key: build-mobile
+- agents: {queue: builder}
+  label: Integration Tests
+  command: echo "integration"
+  key: integration
+  depends_on: [build-backend, build-frontend, build-mobile]

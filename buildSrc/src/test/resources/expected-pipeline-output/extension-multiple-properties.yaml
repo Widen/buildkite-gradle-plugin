@@ -1,0 +1,12 @@
+env: {}
+steps:
+- agents: {queue: production-queue}
+  label: Step with Custom Settings
+  command: gradle build
+  plugins:
+  - docker#v4.0.0: {image: 'openjdk:11'}
+- agents: {queue: production-queue}
+  label: Another Step
+  command: gradle test
+  plugins:
+  - docker-compose#v3.5.0: {run: test-app}

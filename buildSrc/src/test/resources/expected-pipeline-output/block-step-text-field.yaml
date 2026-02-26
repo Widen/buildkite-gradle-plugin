@@ -1,0 +1,6 @@
+env: {}
+steps:
+- block: Release Information
+  fields:
+  - {text: Release Notes, key: release_notes, hint: Enter the release notes for this
+      version, required: true, default: Bug fixes and improvements}

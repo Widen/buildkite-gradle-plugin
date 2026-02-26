@@ -1,0 +1,10 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Docker Custom
+  command: echo "test"
+  plugins:
+  - docker#v3.2.0:
+      image: alpine:latest
+      entrypoint: /bin/sh
+      shell: [/bin/sh, -c]

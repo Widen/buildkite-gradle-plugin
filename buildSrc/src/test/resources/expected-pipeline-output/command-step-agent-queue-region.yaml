@@ -1,0 +1,5 @@
+env: {}
+steps:
+- agents: {queue: builder-us-west-2}
+  label: Regional Queue
+  command: echo "test"

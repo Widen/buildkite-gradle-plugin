@@ -1,0 +1,6 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Skipped
+  command: echo "test"
+  skip: true

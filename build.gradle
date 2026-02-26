@@ -1,19 +1,23 @@
-import com.widen.plugins.buildkite.BuildkitePlugin
-
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
-    id 'com.gradle.plugin-publish' version '0.11.0'
-    id 'com.widen.versioning' version '0.4.1'
+    id 'com.gradle.plugin-publish' version '2.0.0'
+    id 'maven-publish'
+    id 'com.widen.buildkite'
 }
 
-apply plugin: BuildkitePlugin
-
 group = 'com.widen'
+version = '1.0.0-beta-2'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
+    implementation gradleApi()
+    implementation localGroovy()
 }
 
 javadoc {
@@ -31,28 +35,28 @@ jar {
     }
 }
 
+// https://plugins.gradle.org/u/widen
+// user: widendev
 System.setProperty("gradle.publish.key", System.getenv("GRADLE_PUBLISH_KEY") ?: "")
 System.setProperty("gradle.publish.secret", System.getenv("GRADLE_PUBLISH_SECRET") ?: "")
 
-gradlePlugin {
-    plugins {
-        buildkitePlugin {
-            id = 'com.widen.buildkite'
-            implementationClass = BuildkitePlugin.name
-        }
+publishing {
+    repositories {
+        mavenLocal()
     }
 }
 
-pluginBundle {
+gradlePlugin {
     website = 'https://github.com/Widen/buildkite-gradle-plugin'
     vcsUrl = 'https://github.com/Widen/buildkite-gradle-plugin'
-    description = 'A Gradle plugin that provides a DSL for dynamically generating Buildkite pipelines.'
-    tags = ['buildkite']
 
     plugins {
         buildkitePlugin {
             id = 'com.widen.buildkite'
+            implementationClass = "com.widen.plugins.buildkite.BuildkitePlugin"
             displayName = 'Widen Buildkite Gradle plugin'
+            description = 'A Gradle plugin that provides a DSL for dynamically generating Buildkite pipelines.'
+            tags.set(['buildkite'])
         }
     }
 }
@@ -67,7 +71,7 @@ buildkite {
         commandStep {
             // Most methods mirror the names used in a Buildkite YAML file.
             label ':junit: Unit tests'
-            artifactPath 'src/build/reports/integTest/**/*'
+            artifactPath 'buildSrc/build/reports/tests/**/*'
 
             // Specify which Buildkite agents should pick up this work.
             agentQueue 'builder'
@@ -79,8 +83,8 @@ buildkite {
                 HELLO = 'world'
             }
 
-            plugin 'Widen/gradle#v1', {
-                tasks 'check'
+            plugin 'Widen/gradle#v2', {
+                tasks ':buildSrc:check'
                 systemProperties "com.widen.plugins.buildkite.foo": "bar"
                 foo = [
                     {
@@ -103,7 +107,7 @@ buildkite {
             branches '*.*.*'
 
             // Custom plugins can also be used by name.
-            plugin 'Widen/gradle#v1', {
+            plugin 'Widen/gradle#v2', {
                 tasks 'publishPlugins'
             }
         }

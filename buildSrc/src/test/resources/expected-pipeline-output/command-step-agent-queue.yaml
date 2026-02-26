@@ -1,0 +1,5 @@
+env: {}
+steps:
+- agents: {queue: custom-queue}
+  label: Custom Queue
+  command: echo "test"

@@ -1,0 +1,9 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Custom Plugin
+  command: echo "test"
+  plugins:
+  - my-org/my-plugin#v1.0.0:
+      key: value
+      nested: {foo: bar}

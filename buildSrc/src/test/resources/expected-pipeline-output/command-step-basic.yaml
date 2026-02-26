@@ -1,0 +1,5 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Build
+  command: echo "Hello World"

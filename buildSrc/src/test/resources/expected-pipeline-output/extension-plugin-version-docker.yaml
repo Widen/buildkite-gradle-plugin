@@ -1,0 +1,7 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Custom Docker Plugin Version
+  command: echo "test"
+  plugins:
+  - docker#v5.0.0: {image: 'alpine:latest'}

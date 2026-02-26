@@ -1,0 +1,9 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Soft Fail Exit Codes
+  command: echo "test"
+  soft_fail:
+  - {exit_status: 1}
+  - {exit_status: 2}
+  - {exit_status: 255}

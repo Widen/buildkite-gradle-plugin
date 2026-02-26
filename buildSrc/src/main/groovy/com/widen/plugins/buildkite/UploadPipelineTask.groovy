@@ -19,7 +19,7 @@ class UploadPipelineTask extends DefaultTask {
     void upload() {
         def pipeline = pipelineConfig.call()
 
-        if (System.getenv('BUILDKITE') || System.getenv('CI')) {
+        if (System.getenv('BUILDKITE') && !System.getenv('PIPELINE_TO_STDOUT')) {
             def cmd = ['buildkite-agent', 'pipeline', 'upload']
 
             if (!pipeline.interpolate) {

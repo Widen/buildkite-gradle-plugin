@@ -1,0 +1,6 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Timeout Step
+  command: echo "test"
+  timeout_in_minutes: 30

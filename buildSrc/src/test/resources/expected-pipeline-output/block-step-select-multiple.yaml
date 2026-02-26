@@ -1,0 +1,12 @@
+env: {}
+steps:
+- block: Select Services
+  fields:
+  - select: Services to Deploy
+    key: services
+    options:
+    - {label: API, value: api}
+    - {label: Web, value: web}
+    - {label: Worker, value: worker}
+    multiple: true
+    default: [api, web]

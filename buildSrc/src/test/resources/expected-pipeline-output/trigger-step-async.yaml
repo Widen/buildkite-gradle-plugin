@@ -1,0 +1,3 @@
+env: {}
+steps:
+- {trigger: deployment_pipeline, label: Deploy, async: true}

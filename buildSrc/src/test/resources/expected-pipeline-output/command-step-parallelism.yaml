@@ -1,0 +1,6 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Parallel Job
+  command: echo "test"
+  parallelism: 5

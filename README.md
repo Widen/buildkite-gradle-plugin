@@ -68,6 +68,24 @@ This example demonstrates the power of using a language like Groovy to dynamical
 
 Aside from the `upload{name}Pipeline` tasks created, a `pipelines` task is also provided that lists the names of all pipelines found in the project.
 
+## Publishing
+
+To release a new version, simply update the version line in `build.gradle`:
+
+```groovy
+version = '0.6.0'  // Update to your new version
+```
+
+Then commit and publish:
+
+```bash
+git add build.gradle
+git commit -m "Bump version to 0.6.0"
+git tag 0.6.0
+git push origin main --tags
+./gradlew publishPlugins
+```
+
 ## License
 
 Available under the Apache-2.0 license. See [the license file](LICENSE) for details.

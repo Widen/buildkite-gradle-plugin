@@ -1,0 +1,6 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Upload Artifacts
+  command: echo "build"
+  artifact_paths: [build/libs/*.jar, build/reports/**/*]
