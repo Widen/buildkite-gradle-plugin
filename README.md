@@ -13,7 +13,7 @@ First add the plugin to your project:
 
 ```groovy
 plugins {
-    id 'com.widen.buildkite' version '0.5.1'
+    id 'com.widen.buildkite' version '1.0.0'
 }
 ```
 
@@ -80,10 +80,10 @@ Then commit and publish:
 
 ```bash
 git add build.gradle
-git commit -m "Bump version to 0.6.0"
-git tag 0.6.0
-git push origin main --tags
-./gradlew publishPlugins
+git commit -m "Bump version to 1.0.0"
+git tag 1.0.0
+git push origin master --tags
+mise publish-plugin
 ```
 
 ## License
