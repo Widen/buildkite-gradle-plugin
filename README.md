@@ -233,6 +233,56 @@ commandStep {
 }
 ```
 
+### Forcing a YAML array inside plugin config
+
+The DSL unwraps single method-call arguments to scalars, so `targets 'lint'` produces `targets: lint` (a string), not `targets: [lint]` (an array). Use assignment syntax or an explicit list to force array output.
+
+Single-item array:
+
+```yaml
+steps:
+  - plugins:
+      - my-plugin#v1.0.0:
+          targets:
+            - lint
+```
+
+```groovy
+// Assignment syntax (recommended)
+commandStep {
+    plugin 'my-plugin#v1.0.0', {
+        targets = ['lint']
+    }
+}
+
+// Explicit list argument
+commandStep {
+    plugin 'my-plugin#v1.0.0', {
+        targets(['lint'])
+    }
+}
+```
+
+Three-item array (multi-argument method call works naturally):
+
+```yaml
+steps:
+  - plugins:
+      - my-plugin#v1.0.0:
+          targets:
+            - lint
+            - test
+            - build
+```
+
+```groovy
+commandStep {
+    plugin 'my-plugin#v1.0.0', {
+        targets 'lint', 'test', 'build'
+    }
+}
+```
+
 ### Retry with nested map
 
 ```yaml
