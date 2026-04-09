@@ -1413,5 +1413,40 @@ class PipelineDslFunctionalTest extends Specification {
         then:
         assertMatchesExpectedYaml('complex-pipeline', json)
     }
+
+    def "test command step with plugin array config"() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.widen.buildkite'
+            }
+            
+            buildkite {
+                includeScripts = false
+                
+                pipeline {
+                    commandStep {
+                        label 'Single-item array'
+                        plugin 'my-plugin#v1.0.0', {
+                            targets = ['lint']
+                        }
+                    }
+                    commandStep {
+                        label 'Multi-item array'
+                        plugin 'my-plugin#v1.0.0', {
+                            targets 'lint', 'test', 'build'
+                        }
+                    }
+                }
+            }
+        """
+
+        when:
+        def output = runUploadPipeline()
+        def json = extractJsonFromOutput(output)
+
+        then:
+        assertMatchesExpectedYaml('command-step-plugin-array-config', json)
+    }
 }
 
