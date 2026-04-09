@@ -1,69 +1,27 @@
-# Buildkite Gradle Plugin
+# YAML to Groovy DSL Reference — Implementation Plan
 
-[![Build Status](https://badge.buildkite.com/9a1d9c36585e925d7b531e3f456a33de3bddda2a6db9ffee91.svg)](https://buildkite.com/widen/buildkite-gradle-plugin)
-[![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/Widen/buildkite-gradle-plugin?color=%2302303A&label=plugin&logo=gradle)][plugin page]
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-A [Gradle] plugin that provides a DSL for dynamically generating [Buildkite] pipelines.
+**Goal:** Add a quick-reference section to README.md showing 10 common Buildkite YAML patterns alongside their Groovy DSL equivalents.
 
-Made with :heart: by Widen.
+**Architecture:** Single edit to `README.md` — insert a new `## YAML to Groovy DSL Reference` section between lines 65 ("Configuration" section end) and 67 ("## Tasks"). Content comes directly from the approved spec.
 
-## Installation
+**Tech Stack:** Markdown
 
-First add the plugin to your project:
+---
 
-```groovy
-plugins {
-    id 'com.widen.buildkite' version '1.0.0'
-}
-```
+### Task 1: Insert the YAML to Groovy DSL Reference section into README.md
 
-Check out the [releases] page for a list of versions and the changelog for each. Now you are ready to start defining Buildkite pipelines using Groovy inside your `build.gradle`!
+**Files:**
+- Modify: `README.md:65-67` (insert new section between "Configuration" and "Tasks")
 
-## Configuration
+**Reference:** All example content is defined in `docs/superpowers/specs/2026-04-09-yaml-dsl-reference-design.md`, sections 1-10.
 
-Below is an example of defining a Buildkite pipeline:
+- [ ] **Step 1: Insert the new section**
 
-```groovy
-buildkite {
-    pipeline('deployStage') {
-        def regions = ['us-east-1', 'eu-west-1']
+In `README.md`, insert the following content between the line ending "Check out the [plugin's own pipeline]..." (line 65) and the "## Tasks" heading (line 67). The new section starts after one blank line following line 65.
 
-        regions.each { region ->
-            commandStep {
-                label ":rocket: Deploy app to stage $region"
-                command "./bksh deploy-helm-2 -r app-stage -f app-stage-${region}.yaml -g \${DOCKER_TAG} -k k8s2-stage-$region -v 4.2.3"
-                agentQueue 'deploy-stage', region
-            }
-            commandStep {
-                label ":sleeping: Wait for stage $region deploy to finish"
-                command "./bksh wait-for-deploy http://app.${region}.widen-stage.com/health"
-                agentQueue 'deploy-stage', region
-            }
-        }
-
-        waitStep()
-
-        regions.each { region ->
-            commandStep {
-                label ":smoking: Integration test the stage $region deployment"
-                command "./gradlew app-app:integrationTest -Dapp.endpoint=http://app.${region}.widen-stage.com --continue \${GRADLE_SWITCHES}"
-                branch 'master'
-                agentQueue 'integ-stage', region
-                dockerCompose {
-                    run 'gradle'
-                }
-            }
-        }
-    }
-}
-```
-
-A Gradle task named `uploadDeployStagePipeline` will be created automatically. Running this Gradle task locally spits out the JSON representation, so you can see if your pipeline looks correct. Inside Buildkite the pipeline will be added to the current build.
-
-You can also define your pipelines inside Gradle files in a `.buildkite` directory matching the pattern `pipeline*.gradle`. These files will be loaded and evaluated inside the pipeline context automatically (unless `buildkite.includeScripts` is set to false). The name of the pipeline is determined from the file name automatically; `pipeline.{name}.gradle` becomes the camelCase version of `{name}`, while `pipeline.gradle` is named `default`. See [`pipeline.extra-steps.gradle`](.buildkite/pipeline.extra-steps.gradle) for an example of this.
-
-This example demonstrates the power of using a language like Groovy to dynamically generate a pipeline based on lists or other dynamic code. You could even parallelize your unit tests by generating a separate step for each subproject reported by Gradle! Check out the [plugin's own pipeline](https://github.com/Widen/buildkite-gradle-plugin/blob/master/build.gradle) for more examples.
-
+```markdown
 ## YAML to Groovy DSL Reference
 
 Each example below shows a Buildkite YAML pipeline snippet and the equivalent Groovy DSL.
@@ -368,35 +326,22 @@ commandStep {
     ifCondition 'build.source == "schedule"'
 }
 ```
-
-## Tasks
-
-Aside from the `upload{name}Pipeline` tasks created, a `pipelines` task is also provided that lists the names of all pipelines found in the project.
-
-## Publishing
-
-To release a new version, simply update the version line in `build.gradle`:
-
-```groovy
-version = '0.6.0'  // Update to your new version
 ```
 
-Then commit and publish:
+- [ ] **Step 2: Verify the edit**
+
+Visually confirm:
+1. The new section appears between "Configuration" and "Tasks"
+2. All 10 patterns are present with correct headings
+3. No existing content was modified
+4. Fenced code blocks are properly closed (count opening/closing triple-backticks)
+
+Run: `grep -c '```' README.md`
+Expected: Even number (every opening block has a closing block). Original README has 6 (3 blocks). New section adds 40 (20 blocks). Total: 46.
+
+- [ ] **Step 3: Commit**
 
 ```bash
-git add build.gradle
-git commit -m "Bump version to 1.0.0"
-git tag 1.0.0
-git push origin master --tags
-mise publish-plugin
+git add README.md
+git commit -m "docs: add YAML to Groovy DSL quick reference to README"
 ```
-
-## License
-
-Available under the Apache-2.0 license. See [the license file](LICENSE) for details.
-
-
-[Buildkite]: https://buildkite.com
-[Gradle]: https://gradle.org
-[plugin page]: https://plugins.gradle.org/plugin/com.widen.buildkite
-[releases]: https://github.com/Widen/buildkite-gradle-plugin/releases
