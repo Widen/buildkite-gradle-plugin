@@ -60,7 +60,45 @@ buildkite {
 
 A Gradle task named `uploadDeployStagePipeline` will be created automatically. Running this Gradle task locally spits out the JSON representation, so you can see if your pipeline looks correct. Inside Buildkite the pipeline will be added to the current build.
 
-You can also define your pipelines inside Gradle files in a `.buildkite` directory matching the pattern `pipeline*.gradle`. These files will be loaded and evaluated inside the pipeline context automatically (unless `buildkite.includeScripts` is set to false). The name of the pipeline is determined from the file name automatically; `pipeline.{name}.gradle` becomes the camelCase version of `{name}`, while `pipeline.gradle` is named `default`. See [`pipeline.extra-steps.gradle`](.buildkite/pipeline.extra-steps.gradle) for an example of this.
+You can also define pipelines in standalone Gradle script files inside a `.buildkite/` directory. Any file matching `pipeline*.gradle` is loaded automatically (unless `buildkite.includeScripts = false` is set).
+
+**File naming → pipeline name → Gradle task name:**
+
+| File | Pipeline name | Gradle task |
+|---|---|---|
+| `.buildkite/pipeline.gradle` | `default` | `uploadPipeline` |
+| `.buildkite/pipeline.extra-steps.gradle` | `extraSteps` | `uploadExtraStepsPipeline` |
+| `.buildkite/pipeline.deploy-prod.gradle` | `deployProd` | `uploadDeployProdPipeline` |
+
+The segment between `pipeline.` and `.gradle` is converted to camelCase (hyphens and other separators become word boundaries).
+
+**Script format:** Write DSL calls directly at the top level — no `buildkite { pipeline { } }` wrapper needed, since the file is already evaluated inside the pipeline context:
+
+```groovy
+// .buildkite/pipeline.extra-steps.gradle
+
+environment {
+    DEPLOY_ENV = 'staging'
+}
+
+commandStep {
+    label 'Run tests'
+    command './gradlew test'
+}
+
+waitStep()
+
+commandStep {
+    label 'Deploy'
+    command './deploy.sh'
+    // Access the Gradle project object directly
+    environment {
+        VERSION = project.version
+    }
+}
+```
+
+The `project` object is available in script files, so you can read Gradle project properties (e.g. `project.version`, `project.name`) to drive pipeline logic. See [`.buildkite/pipeline.extra-steps.gradle`](.buildkite/pipeline.extra-steps.gradle) for a working example.
 
 This example demonstrates the power of using a language like Groovy to dynamically generate a pipeline based on lists or other dynamic code. You could even parallelize your unit tests by generating a separate step for each subproject reported by Gradle! Check out the [plugin's own pipeline](https://github.com/Widen/buildkite-gradle-plugin/blob/master/build.gradle) for more examples.
 
