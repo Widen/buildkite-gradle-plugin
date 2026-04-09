@@ -60,7 +60,7 @@ buildkite {
 
 A Gradle task named `uploadDeployStagePipeline` will be created automatically. Running this Gradle task locally spits out the JSON representation, so you can see if your pipeline looks correct. Inside Buildkite the pipeline will be added to the current build.
 
-You can also define pipelines in standalone Gradle script files inside a `.buildkite/` directory. Any file matching `pipeline*.gradle` is loaded automatically (unless `buildkite.includeScripts = false` is set).
+You can also define pipelines in standalone Gradle script files inside a `.buildkite/` directory. Any file matching `pipeline*.gradle` is read automatically (unless `buildkite.includeScripts = false` is set).
 
 **File naming → pipeline name → Gradle task name:**
 
