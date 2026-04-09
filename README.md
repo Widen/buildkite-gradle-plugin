@@ -64,6 +64,10 @@ You can also define your pipelines inside Gradle files in a `.buildkite` directo
 
 This example demonstrates the power of using a language like Groovy to dynamically generate a pipeline based on lists or other dynamic code. You could even parallelize your unit tests by generating a separate step for each subproject reported by Gradle! Check out the [plugin's own pipeline](https://github.com/Widen/buildkite-gradle-plugin/blob/master/build.gradle) for more examples.
 
+## Tasks
+
+Aside from the `upload{name}Pipeline` tasks created, a `pipelines` task is also provided that lists the names of all pipelines found in the project.
+
 ## YAML to Groovy DSL Reference
 
 Each example below shows a Buildkite YAML pipeline snippet and the equivalent Groovy DSL.
@@ -442,10 +446,6 @@ These DSL methods have non-obvious output — the YAML key name, structure, or v
 | `plugin 'name', config` | `plugins: [{name#version: config}]` | Auto-appends the default version from `buildkite.pluginVersion` when no `#version` is in the name |
 | `waitStep()` | `wait` (bare string) | Emits the plain string `"wait"`, not a map |
 | `waitStepContinueOnFailure()` | `wait: {continue_on_failure: true}` | Emits a map; contrast with `waitStep()` which emits the bare string |
-
-## Tasks
-
-Aside from the `upload{name}Pipeline` tasks created, a `pipelines` task is also provided that lists the names of all pipelines found in the project.
 
 ## Publishing
 
