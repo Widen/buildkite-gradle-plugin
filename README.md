@@ -5,8 +5,6 @@
 
 A [Gradle] plugin that provides a DSL for dynamically generating [Buildkite] pipelines.
 
-Made with :heart: by Widen.
-
 ## Installation
 
 First add the plugin to your project:
