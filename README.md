@@ -190,7 +190,7 @@ commandStep {
 }
 ```
 
-With region (concatenates as `queue-region`):
+With region (appended as `name-region`; passing `us-east-1` as the region is a special case that omits the suffix and uses the bare name):
 
 ```groovy
 commandStep {
@@ -331,8 +331,8 @@ commandStep {
 steps:
   - retry:
       automatic:
-        - exit_status: -1
-          limit: 3
+        exit_status: -1
+        limit: 3
 ```
 
 ```groovy
@@ -468,7 +468,7 @@ These DSL methods have non-obvious output — the YAML key name, structure, or v
 | DSL Method | YAML Output | Notes |
 |---|---|---|
 | `agentQueue 'name'` | `agents: {queue: name}` | Writes into a nested map under `agents`, not a top-level key |
-| `agentQueue 'name', 'region'` | `agents: {queue: name-region}` | Concatenates name and region with `-`; `us-east-1` is stripped to bare name |
+| `agentQueue 'name', 'region'` | `agents: {queue: name-region}` | Appends region with `-`; `us-east-1` is a special case that uses the bare name without a suffix |
 | `artifactPath 'glob'` | `artifact_paths: [glob]` | Accumulates — call multiple times to build the list; key is snake_case plural |
 | `concurrency 'group', N` | `concurrency: N`<br>`concurrency_group: group` | Single call writes two separate top-level keys simultaneously |
 | `timeout Duration.ofMinutes(N)` | `timeout_in_minutes: N` | Accepts `java.time.Duration`; converts to minutes with a minimum of 1 |
@@ -481,7 +481,7 @@ These DSL methods have non-obvious output — the YAML key name, structure, or v
 | `notOnDefaultBranch()` | `if: "build.branch != pipeline.default_branch"` | Inverse of `onDefaultBranch()` |
 | `ifCondition 'expr'` | `if: expr` | Named `ifCondition` to avoid collision with Groovy's reserved `if` keyword |
 | `composeFile 'path'` | `config: [path]` | DSL name differs from the YAML key (`config`); accumulates into a list |
-| `plugin 'name', config` | `plugins: [{name#version: config}]` | Auto-appends the default version from `buildkite.pluginVersion` when no `#version` is in the name |
+| `plugin 'name', config` | `plugins: [{name#version: config}]` | Auto-appends a configured version via `buildkite.pluginVersion(name, version)`; by default only `docker` and `docker-compose` have versions pre-configured |
 | `waitStep()` | `wait` (bare string) | Emits the plain string `"wait"`, not a map |
 | `waitStepContinueOnFailure()` | `wait: {continue_on_failure: true}` | Emits a map; contrast with `waitStep()` which emits the bare string |
 
