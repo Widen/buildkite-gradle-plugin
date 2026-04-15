@@ -26,7 +26,7 @@ class PipelineDslFunctionalTest extends Specification {
     def setup() {
         buildFile = new File(testProjectDir, 'build.gradle')
         settingsFile = new File(testProjectDir, 'settings.gradle')
-        
+
         // Expected YAML files are stored in src/test/resources/expected-pipeline-output
         expectedOutputDir = Paths.get('src/test/resources/expected-pipeline-output')
     }
@@ -53,7 +53,7 @@ class PipelineDslFunctionalTest extends Specification {
         // The JSON is printed after the task execution
         def lines = output.readLines()
         def jsonStartIndex = -1
-        
+
         // Find where the JSON starts (after task messages)
         for (int i = 0; i < lines.size(); i++) {
             if (lines[i].trim().startsWith('{')) {
@@ -61,11 +61,11 @@ class PipelineDslFunctionalTest extends Specification {
                 break
             }
         }
-        
+
         if (jsonStartIndex == -1) {
             throw new IllegalStateException("Could not find JSON output in:\n$output")
         }
-        
+
         return lines.subList(jsonStartIndex, lines.size()).join('\n')
     }
 
@@ -74,15 +74,15 @@ class PipelineDslFunctionalTest extends Specification {
      */
     private void assertMatchesExpectedYaml(String testName, String actualJson) {
         def expectedFile = expectedOutputDir.resolve("${testName}.yaml").toFile()
-        
+
         // Parse the JSON output
         def jsonSlurper = new JsonSlurper()
         def actualData = jsonSlurper.parseText(actualJson)
-        
+
         // Convert to YAML for comparison
         def yaml = new Yaml()
         def actualYaml = yaml.dump(actualData)
-        
+
         if (!expectedFile.exists()) {
             // Create the expected file as baseline
             expectedFile.parentFile.mkdirs()
@@ -90,10 +90,10 @@ class PipelineDslFunctionalTest extends Specification {
             println "Created baseline YAML file: ${expectedFile.absolutePath}"
             return
         }
-        
+
         // Compare with expected
         def expectedYaml = expectedFile.text
-        assert actualYaml.trim() == expectedYaml.trim(), 
+        assert actualYaml.trim() == expectedYaml.trim(),
             "Output doesn't match expected YAML.\nExpected:\n$expectedYaml\n\nActual:\n$actualYaml"
     }
 
@@ -103,10 +103,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     environment 'FOO', 'bar'
                     environment 'BUILD_NUMBER', '123'
@@ -128,10 +128,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     interpolate = false
                     replace = true
@@ -153,10 +153,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     waitStep()
                 }
@@ -177,10 +177,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     waitStepContinueOnFailure()
                 }
@@ -201,10 +201,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Build'
@@ -228,10 +228,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Multi-command'
@@ -255,11 +255,11 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
                 defaultAgentQueue = 'default-queue'
-                
+
                 pipeline {
                     commandStep {
                         label 'Custom Queue'
@@ -284,10 +284,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Regional Queue'
@@ -312,10 +312,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Upload Artifacts'
@@ -341,10 +341,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Concurrent Job'
@@ -369,10 +369,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'With Environment'
@@ -398,10 +398,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Parallel Job'
@@ -426,10 +426,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Auto Retry'
@@ -457,10 +457,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Skipped'
@@ -485,10 +485,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Skipped with Reason'
@@ -511,14 +511,14 @@ class PipelineDslFunctionalTest extends Specification {
         given:
         buildFile << """
             import java.time.Duration
-            
+
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Timeout Step'
@@ -543,10 +543,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'First Step'
@@ -571,16 +571,55 @@ class PipelineDslFunctionalTest extends Specification {
         assertMatchesExpectedYaml('command-step-key-depends-on', json)
     }
 
+    def "test command step with key and depends on as list"() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.widen.buildkite'
+            }
+
+            buildkite {
+                includeScripts = false
+
+                pipeline {
+                    commandStep {
+                        label 'First Step'
+                        command 'echo "first"'
+                        key 'first'
+                    }
+                    commandStep {
+                        label 'Second Step'
+                        command 'echo "second"'
+                        key 'second'
+                    }
+                    commandStep {
+                        label 'Third Step'
+                        command 'echo "third"'
+                        key 'third'
+                        dependsOn(['first', 'second'])
+                    }
+                }
+            }
+        """
+
+        when:
+        def output = runUploadPipeline()
+        def json = extractJsonFromOutput(output)
+
+        then:
+        assertMatchesExpectedYaml('command-step-key-depends-on-as-list', json)
+    }
+
     def "test command step with multiple depends on"() {
         given:
         buildFile << """
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Build Backend'
@@ -621,10 +660,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'On Default Branch'
@@ -654,10 +693,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Custom Condition'
@@ -682,10 +721,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Cleanup'
@@ -710,10 +749,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Branch Filter'
@@ -738,10 +777,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Soft Fail'
@@ -766,10 +805,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Soft Fail Exit Codes'
@@ -794,10 +833,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Docker Build'
@@ -829,10 +868,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Docker Custom'
@@ -861,10 +900,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Docker Compose'
@@ -894,10 +933,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Docker Compose Advanced'
@@ -929,10 +968,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     commandStep {
                         label 'Custom Plugin'
@@ -957,10 +996,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     blockStep 'Deploy to Production'
                 }
@@ -981,10 +1020,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     blockStep('Manual Approval') {
                         prompt 'Please review the changes before continuing'
@@ -1007,10 +1046,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     blockStep('Release Information') {
                         textField('Release Notes', 'release_notes') {
@@ -1037,10 +1076,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     blockStep('Select Environment') {
                         selectField('Target Environment', 'environment') {
@@ -1070,10 +1109,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     blockStep('Select Services') {
                         selectField('Services to Deploy', 'services') {
@@ -1102,10 +1141,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     triggerStep 'deployment_pipeline'
                 }
@@ -1126,10 +1165,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     triggerStep('deployment_pipeline') {
                         label 'Deploy'
@@ -1153,10 +1192,10 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
-                
+
                 pipeline {
                     triggerStep('deployment_pipeline') {
                         label 'Trigger Deploy'
@@ -1189,11 +1228,11 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
                 defaultAgentQueue = 'custom-default-queue'
-                
+
                 pipeline {
                     commandStep {
                         label 'Uses Default Queue'
@@ -1217,11 +1256,11 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
                 defaultAgentQueue 'method-set-queue'
-                
+
                 pipeline {
                     commandStep {
                         label 'Uses Method Set Queue'
@@ -1245,11 +1284,11 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
                 pluginVersion 'docker', 'v5.0.0'
-                
+
                 pipeline {
                     commandStep {
                         label 'Custom Docker Plugin Version'
@@ -1276,11 +1315,11 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
                 pluginVersion 'docker-compose', 'v4.5.0'
-                
+
                 pipeline {
                     commandStep {
                         label 'Custom Docker Compose Plugin Version'
@@ -1307,13 +1346,13 @@ class PipelineDslFunctionalTest extends Specification {
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
                 defaultAgentQueue = 'production-queue'
                 pluginVersion 'docker', 'v4.0.0'
                 pluginVersion 'docker-compose', 'v3.5.0'
-                
+
                 pipeline {
                     commandStep {
                         label 'Step with Custom Settings'
@@ -1322,7 +1361,7 @@ class PipelineDslFunctionalTest extends Specification {
                             image 'openjdk:11'
                         }
                     }
-                    
+
                     commandStep {
                         label 'Another Step'
                         command 'gradle test'
@@ -1346,19 +1385,19 @@ class PipelineDslFunctionalTest extends Specification {
         given:
         buildFile << """
             import java.time.Duration
-            
+
             plugins {
                 id 'com.widen.buildkite'
             }
-            
+
             buildkite {
                 includeScripts = false
                 defaultAgentQueue = 'builder'
-                
+
                 pipeline {
                     environment 'CI', 'true'
                     environment 'BUILD_ENV', 'test'
-                    
+
                     commandStep {
                         label 'Unit Tests'
                         key 'tests'
@@ -1371,9 +1410,9 @@ class PipelineDslFunctionalTest extends Specification {
                             propagateEnvironment()
                         }
                     }
-                    
+
                     waitStep()
-                    
+
                     commandStep {
                         label 'Integration Tests'
                         command 'gradle integrationTest'
@@ -1384,7 +1423,7 @@ class PipelineDslFunctionalTest extends Specification {
                             build 'app', 'db'
                         }
                     }
-                    
+
                     blockStep('Deploy?') {
                         prompt 'Ready to deploy?'
                         selectField('Environment', 'env') {
@@ -1393,7 +1432,7 @@ class PipelineDslFunctionalTest extends Specification {
                             required true
                         }
                     }
-                    
+
                     triggerStep('deployment_pipeline') {
                         label 'Deploy'
                         async false
@@ -1414,4 +1453,3 @@ class PipelineDslFunctionalTest extends Specification {
         assertMatchesExpectedYaml('complex-pipeline', json)
     }
 }
-
