@@ -60,7 +60,7 @@ buildkite {
 
 A Gradle task named `uploadDeployStagePipeline` will be created automatically. Running this Gradle task locally spits out the JSON representation, so you can see if your pipeline looks correct. Inside Buildkite the pipeline will be added to the current build.
 
-You can also define pipelines in standalone Gradle script files inside a `.buildkite/` directory. Any file matching `pipeline*.gradle` is read and a Gradle task created automatically (unless `buildkite.includeScripts = false` is set).
+You can also define pipelines in standalone Gradle script files inside a `.buildkite/` directory. Any file matching `pipeline*.gradle` is read and a Gradle task created automatically (unless `buildkite.includeScripts = false` is set). This is useful when a pipeline is large enough to deserve its own file — the plugin evaluates each script inside the pipeline context, so you write DSL directly without any wrapping block.
 
 **File naming → pipeline name → Gradle task name:**
 
@@ -104,7 +104,7 @@ This example demonstrates the power of using a language like Groovy to dynamical
 
 ## Tasks
 
-Aside from the `upload{name}Pipeline` tasks created, a `pipelines` task is also provided that lists the names of all pipelines found in the project.
+Aside from the `upload{name}Pipeline` tasks created, a `pipelines` task is also provided that lists the names of all pipelines found in the project. This is handy for verifying that all your `.buildkite/*.gradle` files were discovered and named correctly before running an upload.
 
 ## YAML to Groovy DSL Reference
 
@@ -277,7 +277,7 @@ commandStep {
 
 ### Forcing a YAML array inside plugin config
 
-The DSL unwraps single method-call arguments to scalars, so `targets 'lint'` produces `targets: lint` (a string), not `targets: [lint]` (an array). Use assignment syntax or an explicit list to force array output.
+The DSL infers output type from how you call a method: a single argument becomes a scalar, multiple arguments become a list. For plugin config closures this means `targets 'lint'` produces `targets: lint` (a string), not `targets: [lint]` (an array). Use assignment syntax or an explicit list to force array output when the plugin expects a list regardless of item count.
 
 Single-item array:
 
@@ -463,7 +463,7 @@ commandStep {
 
 ### Special keyword reference
 
-These DSL methods have non-obvious output — the YAML key name, structure, or value differs from what the method name suggests.
+These DSL methods produce YAML that looks different from what the method name implies — either because the YAML key name differs, the output structure changes based on argument count, or a shortcut hard-codes a value. None of this is accidental; the table below documents each case so you know what to expect.
 
 | DSL Method | YAML Output | Notes |
 |---|---|---|
