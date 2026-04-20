@@ -1,0 +1,12 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: Single-item array
+  plugins:
+  - my-plugin#v1.0.0:
+      targets: [lint]
+- agents: {queue: builder}
+  label: Multi-item array
+  plugins:
+  - my-plugin#v1.0.0:
+      targets: [lint, test, build]
