@@ -1,0 +1,136 @@
+# Dependabot gradle configuration to exclude dependencies managed in mica.versions.toml
+version: 2
+registries:
+  jfrog-java:
+    type: maven-repository
+    url: https://jfrog.ais.acquia.io/artifactory/widen-java-virtual/
+    username: "widen_token"
+    password: ${{ secrets.ACQUIA_JFROG_TOKEN }}
+  jfrog-npm:
+    type: npm-registry
+    url: https://jfrog.ais.acquia.io/artifactory/api/npm/widen-npm-virtual/
+    token: ${{ secrets.ACQUIA_JFROG_TOKEN }}
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    registries:
+      - jfrog-npm
+    versioning-strategy: increase
+    open-pull-requests-limit: 10
+    schedule:
+      interval: "daily"
+    cooldown:
+      default-days: 3
+    groups:
+      patch-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+
+  - package-ecosystem: "gradle"
+    directory: "/"
+    registries:
+      - jfrog-java
+    open-pull-requests-limit: 10
+    schedule:
+      interval: "daily"
+    cooldown:
+      default-days: 3
+    rebase-strategy: "auto"
+    groups:
+      patch-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+    ignore:
+      - dependency-name: "cglib:cglib-nodep"
+      - dependency-name: "ch.qos.logback:*"
+      - dependency-name: "com.amazonaws:*"
+      - dependency-name: "com.amazonaws:amazon-kinesis-client"
+      - dependency-name: "com.amazonaws:dynamodb-streams-kinesis-adapter"
+      - dependency-name: "com.beust:jcommander"
+      - dependency-name: "com.fasterxml.jackson:*"
+      - dependency-name: "com.github.ben-manes.caffeine:caffeine"
+      - dependency-name: "com.github.curious-odd-man:rgxgen"
+      - dependency-name: "com.github.vladimir-bukhtoyarov:bucket4j-ignite"
+      - dependency-name: "com.github.zafarkhaja:java-semver"
+      - dependency-name: "com.google.*:*"
+      - dependency-name: "com.google.code.findbugs:annotations"
+      - dependency-name: "com.jayway.restassured:*"
+      - dependency-name: "com.jcabi:jcabi-manifests"
+      - dependency-name: "com.launchdarkly:launchdarkly-java-server-sdk"
+      - dependency-name: "com.maxmind.geoip2:geoip2"
+      - dependency-name: "com.slack.api:slack-api-client"
+      - dependency-name: "com.squareup.*:*"
+      - dependency-name: "com.uber.jaeger:*"
+      - dependency-name: "com.zaxxer:HikariCP"
+      - dependency-name: "commons-*"
+      - dependency-name: "gradle-wrapper"
+      - dependency-name: "io.github.resilience4j:*"
+      - dependency-name: "io.opentracing:*"
+      - dependency-name: "io.prometheus:*"
+      - dependency-name: "io.swagger.core.v3:swagger-jaxrs2"
+      - dependency-name: "javax.annotation:javax.annotation-api"
+      - dependency-name: "javax.servlet:javax.servlet-api"
+      - dependency-name: "javax.ws.rs:*"
+      - dependency-name: "joda-time:joda-time"
+      - dependency-name: "junit:junit"
+      - dependency-name: "mysql:mysql-connector-java"
+      - dependency-name: "net.bytebuddy:byte-buddy"
+      - dependency-name: "net.jodah:typetools"
+      - dependency-name: "net.logstash.logback:*"
+      - dependency-name: "org.apache.commons:*"
+      - dependency-name: "org.apache.httpcomponents:*"
+      - dependency-name: "org.apache.ignite:*"
+      - dependency-name: "org.apache.logging.log4j:*"
+      - dependency-name: "org.apache.tapestry:*"
+      - dependency-name: "org.assertj:assertj-core"
+      - dependency-name: "org.atteo.classindex:classindex"
+      - dependency-name: "org.codehaus.groovy:*"
+      - dependency-name: "org.easymock:easymock"
+      - dependency-name: "org.eclipse.jetty:*"
+      - dependency-name: "org.flywaydb:*"
+      - dependency-name: "org.freemarker:freemarker"
+      - dependency-name: "org.glassfish.jersey.*:*"
+      - dependency-name: "org.hamcrest:hamcrest"
+      - dependency-name: "org.hibernate.javax.persistence:*"
+      - dependency-name: "org.hibernate:*"
+      - dependency-name: "org.javassist:javassist"
+      - dependency-name: "org.junit.*:*"
+      - dependency-name: "org.mockito:mockito-core"
+      - dependency-name: "org.objenesis:objenesis"
+      - dependency-name: "org.postgresql:postgresql"
+      - dependency-name: "org.reflections:reflections"
+      - dependency-name: "org.slf4j:*"
+      - dependency-name: "org.spockframework:spock-core"
+      - dependency-name: "org.testng:testng"
+      - dependency-name: "org.webjars.npm:*"
+      - dependency-name: "software.amazon.awssdk:*"
+      - dependency-name: "software.amazon.codeguruprofiler:*"
+      - dependency-name: 'widen:mica-*'
+      - dependency-name: 'mica.settings'

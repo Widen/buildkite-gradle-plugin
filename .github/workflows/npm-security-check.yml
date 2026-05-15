@@ -1,0 +1,63 @@
+name: NPM Security Check
+
+# Runs on PRs that modify dependency files.
+# Blocks merging if any critical npm advisory is found.
+# Warns (does not block) on high-severity findings.
+# Transitional setting: tighten to --severity high once pre-existing high-severity
+# findings across all applications are resolved.
+
+on:
+  pull_request:
+    paths:
+      - '**/package.json'
+      - '**/yarn.lock'
+      - '**/.yarnrc.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  npm-audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ACQUIA_JFROG_TOKEN: ${{ secrets.ACQUIA_JFROG_TOKEN }}
+
+    steps:
+      - name: Checkout
+        # actions/checkout v4.3.1 pinned by SHA to prevent tag mutation attacks
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Setup Node
+        # actions/setup-node v4 pinned by SHA
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Enable Corepack (Yarn 4)
+        run: corepack enable
+
+      - name: Configure Artifactory auth
+        # Mirrors the per-registry npmAuthToken that developers have in ~/.yarnrc.yml.
+        # Injected at the home level so the project .yarnrc.yml stays auth-free.
+        run: |
+          yarn config set --home \
+            'npmRegistries["https://jfrog.ais.acquia.io/artifactory/api/npm/widen-npm-virtual/"].npmAlwaysAuth' true
+          yarn config set --home \
+            'npmRegistries["https://jfrog.ais.acquia.io/artifactory/api/npm/widen-npm-virtual/"].npmAuthToken' "$ACQUIA_JFROG_TOKEN"
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Audit - critical (blocking)
+        # Fails this job (and blocks the PR) if any critical severity advisory
+        # is found in the dependency tree.
+        run: yarn npm audit --all --recursive --severity critical
+
+      - name: Audit - high (warning only)
+        # Reports high-severity findings in the workflow log but does not fail
+        # the job. Promote to blocking once pre-existing high findings are clean.
+        run: yarn npm audit --all --recursive --severity high
+        continue-on-error: true
