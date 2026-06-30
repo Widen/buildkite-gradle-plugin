@@ -17,6 +17,12 @@ commandStep {
     dependsOn "step-a", "step-b"
 }
 
+def stepKeys = ["step-a", "step-b"]
+commandStep {
+    command "echo 'Hello World!'"
+    dependsOn stepKeys
+}
+
 blockStep 'Wait a minute!'
 
 commandStep {

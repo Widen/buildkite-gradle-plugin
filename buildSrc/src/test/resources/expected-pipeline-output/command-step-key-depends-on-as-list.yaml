@@ -1,0 +1,15 @@
+env: {}
+steps:
+- agents: {queue: builder}
+  label: First Step
+  command: echo "first"
+  key: first
+- agents: {queue: builder}
+  label: Second Step
+  command: echo "second"
+  key: second
+- agents: {queue: builder}
+  label: Third Step
+  command: echo "third"
+  key: third
+  depends_on: [first, second]

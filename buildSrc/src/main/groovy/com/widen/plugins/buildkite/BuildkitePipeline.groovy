@@ -679,7 +679,14 @@ class BuildkitePipeline implements ConfigurableEnvironment {
          * Make this step depend on the completion of another step
          */
         void dependsOn(String... dependsOn) {
-            model.depends_on = dependsOn
+            model.depends_on = dependsOn.toList()
+        }
+
+        /**
+         * Make this step depend on the completion of another step
+         */
+        void dependsOn(Collection<String> dependsOn) {
+            model.depends_on = dependsOn.toList()
         }
 
         /**
